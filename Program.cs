@@ -64,9 +64,6 @@ app.MapGet("/department/{id}", async (GrammateiaDb db, int id) => await db.Depar
 
 app.MapPost("/departments", async (GrammateiaDb db, Department department) =>
 {
-//   department.Name = department.Name;
-//   department.School = department.School;
-
   await db.Department.AddAsync(department);
   await db.SaveChangesAsync();
   return Results.Created($"/departments/{department.Id}", department);
@@ -136,14 +133,11 @@ app.MapGet("/courses/{id}", async (GrammateiaDb db, int id) =>
 
 app.MapPost("/courses", async (GrammateiaDb db, Course course) =>
 {
-  course.Name = course.Name;
-  course.Semester = course.Semester;
-  course.DepartmentID = course.DepartmentID;
-  course.TeacherID = course.TeacherID;
 
   await db.Course.AddAsync(course);
   await db.SaveChangesAsync();
   return Results.Created($"/courses/{course.Id}", course);
+
 });
 
 app.MapPut("/courses/{id}", async (GrammateiaDb db, int id, Course updatedCourse) =>
@@ -177,9 +171,6 @@ app.MapPut("/courses/{id}", async (GrammateiaDb db, int id, Course updatedCourse
     {
         existingCourse.TeacherID = updatedCourse.TeacherID;
     }
-
-    // If you want to update the related department as well, you can do so by updating the navigation property
-    // existingCourse.Department = updatedCourse.Department;
 
     // Save changes to the database
     await db.SaveChangesAsync();
@@ -222,9 +213,9 @@ app.MapPost("/user", async (GrammateiaDb db, User user) =>
 {
     user.SetPassword(user.Password);
 
-        // Save the user to the database
-        await db.User.AddAsync(user);
-        await db.SaveChangesAsync();
+    // Save the user to the database
+    await db.User.AddAsync(user);
+    await db.SaveChangesAsync();
 
     
     if (user.Role == UserRole.Student)
@@ -242,8 +233,6 @@ app.MapPost("/user", async (GrammateiaDb db, User user) =>
 
         Console.WriteLine($"First letter: {firstLetter}");
 
-    
-        // // // Generate a unique student_id starting with the department letter, timestamp, and random component
        string Student_id = GenerateUniqueStudentId(firstLetter);
 
         // Create and add the corresponding Student entity
@@ -255,7 +244,6 @@ app.MapPost("/user", async (GrammateiaDb db, User user) =>
             DepartmentID = user.Student.DepartmentID,
         };
 
-        // Add the student to the Students table
         await db.Student.AddAsync(student);
         await db.SaveChangesAsync();
 
@@ -340,11 +328,10 @@ app.MapPut("/user/{id}", async (GrammateiaDb db, User updateuser, int id) =>
     {
         user.Email = updateuser.Email;
     }
-    
+    if (updateuser.Role != null && updateuser.Role != default(UserRole))
+    {
         user.Role = updateuser.Role;
-
-    
-
+    }
     try
     {
         // Save changes to the database
@@ -367,7 +354,7 @@ app.MapPut("/user/{id}", async (GrammateiaDb db, User updateuser, int id) =>
             var teacher = await db.Teacher.FirstOrDefaultAsync(t => t.UserID == user.Id);
             if (teacher != null)
             {
-                // Update teacher-specific fields
+                teacher.DepartmentID = updateuser.Teacher.DepartmentID;
             }
         }
 
@@ -535,14 +522,11 @@ app.MapGet("/grade/{id}", async (GrammateiaDb db, int id) =>
 
 app.MapPost("/grades", async (GrammateiaDb db, Grades grade) =>
 {
-  grade.Grade = grade.Grade;
-  grade.StudentID = grade.StudentID;
-  grade.CourseID = grade.CourseID;
-  grade.Exam = grade.Exam;
 
   await db.Grade.AddAsync(grade);
   await db.SaveChangesAsync();
   return Results.Created($"/grades/{grade.Id}", grade);
+
 });
 
 app.MapPut("grade/{id}", async (GrammateiaDb db, Grades updateGrade, int id) =>
@@ -620,14 +604,13 @@ app.MapGet("/registration/{id}", async (GrammateiaDb db, int id) =>
 
 app.MapPost("/registration", async (GrammateiaDb db, Registration registration) =>
 {
-//   registration.StudentID = registration.StudentID;
-//   registration.CourseID = registration.CourseID;
-  registration.RegDate = DateTime.UtcNow;
 
+  registration.RegDate = DateTime.UtcNow;
 
   await db.Registration.AddAsync(registration);
   await db.SaveChangesAsync();
   return Results.Created($"/registration/{registration.RegId}", registration);
+
 });
 
 app.MapPut("/registration/{id}", async (GrammateiaDb db, int id, Registration updatedRegistration) =>
