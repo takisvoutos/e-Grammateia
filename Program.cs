@@ -64,8 +64,8 @@ app.MapGet("/department/{id}", async (GrammateiaDb db, int id) => await db.Depar
 
 app.MapPost("/departments", async (GrammateiaDb db, Department department) =>
 {
-  department.Name = department.Name;
-  department.School = department.School;
+//   department.Name = department.Name;
+//   department.School = department.School;
 
   await db.Department.AddAsync(department);
   await db.SaveChangesAsync();
@@ -620,8 +620,8 @@ app.MapGet("/registration/{id}", async (GrammateiaDb db, int id) =>
 
 app.MapPost("/registration", async (GrammateiaDb db, Registration registration) =>
 {
-  registration.StudentID = registration.StudentID;
-  registration.CourseID = registration.CourseID;
+//   registration.StudentID = registration.StudentID;
+//   registration.CourseID = registration.CourseID;
   registration.RegDate = DateTime.UtcNow;
 
 
@@ -629,6 +629,39 @@ app.MapPost("/registration", async (GrammateiaDb db, Registration registration) 
   await db.SaveChangesAsync();
   return Results.Created($"/registration/{registration.RegId}", registration);
 });
+
+app.MapPut("/registration/{id}", async (GrammateiaDb db, int id, Registration updatedRegistration) =>
+{
+    // Find the existing registration by ID
+    var existingRegistration = await db.Registration.FindAsync(id);
+
+    // If the registration with the specified ID is not found, return a 404 Not Found response
+    if (existingRegistration == null)
+    {
+        return Results.NotFound($"Registration with ID {id} not found");
+    }
+
+    // Update the properties of the existing registration with values from the updatedRegistration object
+    
+    
+    
+    if (updatedRegistration.StudentID != 0)
+    {
+        existingRegistration.StudentID = updatedRegistration.StudentID;
+    }
+
+    if (updatedRegistration.CourseID != 0)
+    {
+        existingRegistration.CourseID = updatedRegistration.CourseID;
+    }
+
+    // Save changes to the database asynchronously
+    await db.SaveChangesAsync();
+
+    // Return a response indicating successful update
+    return Results.NoContent();
+});
+
 
 app.MapDelete("/registration/{id}", async (GrammateiaDb db, int id) =>
 {
