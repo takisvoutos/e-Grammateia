@@ -55,14 +55,17 @@ function UserManagement() {
         // Handle the error, e.g., show an error message
         console.error('Failed to create user:', response.statusText);
         return;
+      }else 
+      {
+        console.log("User created successfully");
       }
   
-      // Assuming the response contains the created user data
-      const createdUser = await response.json();
+      // // Assuming the response contains the created user data
+      // const createdUser = await response.json();
   
-      // Update the state or perform other actions as needed
-      setUserData([...userData, createdUser]);
-      setMaxUserId(maxUserId + 1);
+      // // Update the state or perform other actions as needed
+      // setUserData([...userData, createdUser]);
+      // setMaxUserId(maxUserId + 1);
     } catch (error) {
       console.error('Error creating user:', error.message);
       // Handle the error, e.g., show an error message

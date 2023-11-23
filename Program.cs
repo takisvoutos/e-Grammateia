@@ -202,6 +202,8 @@ app.MapGet("/users", async (GrammateiaDb db) =>
             user.Username,
             user.Email,
             user.Role,
+            // user.Student.Department,
+            Department = user.Role == UserRole.Student ? user.Student.Department : user.Teacher.Department,
         })
         .ToListAsync();
 
@@ -220,32 +222,39 @@ app.MapPost("/user", async (GrammateiaDb db, User user) =>
     
     if (user.Role == UserRole.Student)
     {
-        
-        int departmentId = user.Student.DepartmentID;
-        
-        var department = await db.Department.FindAsync(departmentId);
-        string departmentName = department.Name;
-
-        string[] words = departmentName.Split(' ');
-
-        // Get the first letter, regardless of the number of words
-        char firstLetter = words.First().FirstOrDefault();
-
-        Console.WriteLine($"First letter: {firstLetter}");
-
-       string Student_id = GenerateUniqueStudentId(firstLetter);
-
-        // Create and add the corresponding Student entity
-        var student = new Student
+        if (user.Student != null) 
         {
-            UserID = user.Id,
-            StudentNumber = Student_id,
-            RegistrationDate = DateTime.UtcNow,
-            DepartmentID = user.Student.DepartmentID,
-        };
+            int departmentId = user.Student.DepartmentID;
+        
+            var department = await db.Department.FindAsync(departmentId);
+            string departmentName = department.Name;
 
-        await db.Student.AddAsync(student);
-        await db.SaveChangesAsync();
+            string[] words = departmentName.Split(' ');
+
+            // Get the first letter, regardless of the number of words
+            char firstLetter = words.First().FirstOrDefault();
+
+            Console.WriteLine($"First letter: {firstLetter}");
+
+        string Student_id = GenerateUniqueStudentId(firstLetter);
+
+            // Create and add the corresponding Student entity
+            var student = new Student
+            {
+                UserID = user.Id,
+                StudentNumber = Student_id,
+                RegistrationDate = DateTime.UtcNow,
+                DepartmentID = user.Student.DepartmentID,
+            };
+
+            await db.Student.AddAsync(student);
+            await db.SaveChangesAsync();
+        }else
+        {
+            
+            Console.WriteLine("Student property is null.");
+        }
+       
 
         
     }
@@ -276,22 +285,6 @@ static string GenerateUniqueStudentId(char departmentLetter)
 }
 
 app.MapGet("/user/{id}", async (GrammateiaDb db, int id) => await db.User.FindAsync(id));
-
-// app.MapPut("/user/{id}", async (GrammateiaDb db, User updateuser, int id) =>
-// {
-        
-//     // Log the incoming payload
-//     Console.WriteLine($"Updating user: {System.Text.Json.JsonSerializer.Serialize(updateuser)}");
-    
-//       var user = await db.Users.FindAsync(id);
-//       if (user is null) return Results.NotFound();
-//       user.Name = updateuser.Name;
-//       user.Username = updateuser.Username;
-//       user.Email = updateuser.Email;
-//       user.Role = updateuser.Role;
-//       await db.SaveChangesAsync();
-//       return Results.NoContent();
-// });
 
 app.MapPut("/user/{id}", async (GrammateiaDb db, User updateuser, int id) =>
 {

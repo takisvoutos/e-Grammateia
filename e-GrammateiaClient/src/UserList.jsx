@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Box, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Select, MenuItem,} from '@mui/material';
+import { TextField, Button, Box, List, ListItem, ListItemText, IconButton, Select, MenuItem,} from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 
 function UserList({ name, data, onCreate, onUpdate, onDelete, error, departments }) {
@@ -23,18 +23,54 @@ function UserList({ name, data, onCreate, onUpdate, onDelete, error, departments
 
   const handleSubmit = (event) => {
     event.preventDefault();
+  
+    // Create a new student object with the desired structure
+    const newStudent = {
+      id: formData.id,
+      name: formData.name,
+      username: formData.username,
+      password: formData.password,
+      email: formData.email,
+      role: formData.role,
+    };
+  
+    // Conditionally include the student property based on the role
+    if (formData.role === 2) {
+      newStudent.student = {
+        departmentID: formData.department,
+      };
+    }
 
+    // Conditionally include the teacher property based on the role
+    if (formData.role === 1) {
+      newStudent.teacher = {
+        departmentID: formData.department,
+      };
+    }
+  
     if (editingId) {
-      onUpdate(formData);
+      onUpdate(newStudent);
       setEditingId(null);
     } else {
-      onCreate(formData);
+      onCreate(newStudent);
     }
-    setFormData({ id: '', name: '', username: '', email: '', role: '', password: '', department: '' });
-
-    // Log the formData object after form submission
-  console.log('Form Data after submission:', formData); 
+  
+    setFormData({
+      id: '',
+      name: '',
+      username: '',
+      email: '',
+      role: '',
+      password: '',
+      department: '',
+    });
+  
+    // Log the newStudent object after form submission
+    console.log('Student Data after submission:', newStudent);
   };
+  
+  
+  
 
   const handleEdit = (item) => {
     setEditingId(item.id);
@@ -44,14 +80,14 @@ function UserList({ name, data, onCreate, onUpdate, onDelete, error, departments
       username: item.username,
       email: item.email, 
       role: item.role,
-      department: item.department
+      department: item.department.id
     });
   };
   
 
   const handleCancelEdit = () => {
     setEditingId(null);
-    setFormData({ id: '', name: '', username: '', email: '', role: '' });
+    setFormData({ id: '', name: '', username: '', email: '', role: '', department: ''});
   };
 
   return (
@@ -75,7 +111,7 @@ function UserList({ name, data, onCreate, onUpdate, onDelete, error, departments
 
         <Select label="Department" name="department" value={formData.department} onChange={handleFormChange}>
           {departments.map(department => (
-            <MenuItem key={department.id} value={department.name}>
+            <MenuItem key={department.id} value={department.id}>
               {department.name}
             </MenuItem>
           ))}
@@ -97,7 +133,7 @@ function UserList({ name, data, onCreate, onUpdate, onDelete, error, departments
         }>
          <ListItemText
               primary={`Name: ${item.name}`}
-              secondary={`Email: ${item.email}, Username: ${item.username}, Role: ${item.role}`}
+              secondary={`Email: ${item.email}, Username: ${item.username}, Role: ${item.role}, Department: ${item.department ? item.department.id : 'N/A'}`}
             />
           </ListItem>
       ))}
