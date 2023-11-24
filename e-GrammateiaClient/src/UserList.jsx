@@ -3,6 +3,7 @@ import { TextField, Button, Box, List, ListItem, ListItemText, IconButton, Selec
 import { Delete, Edit } from '@mui/icons-material';
 
 function UserList({ name, data, onCreate, onUpdate, onDelete, error, departments }) {
+
   const [formData, setFormData] = useState({ 
     id: '', 
     name: '', 
@@ -11,6 +12,7 @@ function UserList({ name, data, onCreate, onUpdate, onDelete, error, departments
     role: '', 
     password: '',
     department: ''  });
+    
   const [editingId, setEditingId] = useState(null);
 
   const handleFormChange = (event) => {

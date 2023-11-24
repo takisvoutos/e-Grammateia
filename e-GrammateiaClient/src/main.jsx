@@ -35,6 +35,7 @@ const PrivateRoute = ({ element, allowedRoles }) => {
 import User from './User';
 import Login from './Login';
 import Dashboard from './Dashboard';
+import Department from './Department';
 
 export default function App() {
 
@@ -59,12 +60,16 @@ export default function App() {
         <Route
             path="/user"
             element={<PrivateRoute element={<User />} allowedRoles={['Admin']} />}
-          />
+        />
+        <Route
+            path="/departments"
+            element={<PrivateRoute element={<Department />} allowedRoles={['Admin']} />}
+        />
       </Routes>
       {/* Logout button */}
       <Link to="#" onClick={handleLogout}>
           Logout
-        </Link>
+      </Link>
     </BrowserRouter>
   </ThemeProvider>
   );
