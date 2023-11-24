@@ -162,6 +162,16 @@ app.MapPut("/courses/{id}", async (GrammateiaDb db, int id, Course updatedCourse
         existingCourse.Semester = updatedCourse.Semester;
     }
 
+    if (updatedCourse.Course_Type != default)
+    {
+        existingCourse.Course_Type = updatedCourse.Course_Type;
+    }
+
+    if (updatedCourse.ECTS != default)
+    {
+        existingCourse.ECTS = updatedCourse.ECTS;
+    }
+
     if (updatedCourse.DepartmentID != default)
     {
         existingCourse.DepartmentID = updatedCourse.DepartmentID;
@@ -380,6 +390,32 @@ app.MapDelete("/user/{id}", async (GrammateiaDb db, int id) =>
    db.User.Remove(user);
    await db.SaveChangesAsync();
    return Results.Ok();
+});
+
+// Teachers //
+
+app.MapGet("/teachers", async (GrammateiaDb db) => 
+{
+    var teachers = await db.Teacher
+        .Include(s => s.Department)
+        .Include(s => s.User)
+        .Select(s => new
+        {
+            s.TeacherID,
+            s.UserID,
+            s.DepartmentID,
+            s.Department,
+            User = new
+            {
+                s.User.Name,
+                s.User.Username,
+                s.User.Email,
+                s.User.Role
+            }
+        })
+        .ToListAsync();
+
+    return teachers;
 });
 
 // Student //

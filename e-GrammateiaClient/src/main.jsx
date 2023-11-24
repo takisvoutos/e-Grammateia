@@ -36,6 +36,7 @@ import User from './User';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import Department from './Department';
+import Course from './Course';
 
 export default function App() {
 
@@ -64,6 +65,10 @@ export default function App() {
         <Route
             path="/departments"
             element={<PrivateRoute element={<Department />} allowedRoles={['Admin']} />}
+        />
+         <Route
+            path="/course"
+            element={<PrivateRoute element={<Course />} allowedRoles={['Admin']} />}
         />
       </Routes>
       {/* Logout button */}

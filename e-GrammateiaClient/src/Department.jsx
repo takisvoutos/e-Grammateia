@@ -4,7 +4,7 @@ import DepartmentList from './DepartmentList';
 
 function DepartmentManagement() {
 
-  const [departmentData, setDepartmenData] = useState([]);
+  const [departmentData, setDepartmentData] = useState([]);
   const [maxDepartmentId, setMaxDepartmenId] = useState(0);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function DepartmentManagement() {
 
       const departmentsData = await response.json();
       
-      setDepartmenData(departmentsData);
+      setDepartmentData(departmentsData);
       setMaxDepartmenId(Math.max(...departmentsData.map(department => department.id)));
 
     } catch (error) {
