@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import UserList from './UserList';
+import Layout from './Layout';
 
 const term = "User";
 
@@ -122,7 +123,8 @@ function UserManagement() {
   
 
   return (
-    <div>
+    <Layout title="Users">
+       <div>
       <UserList
         name={term}
         data={userData}
@@ -132,6 +134,8 @@ function UserManagement() {
         departments={departments}
       />
     </div>
+    </Layout>
+   
   );
 }
 

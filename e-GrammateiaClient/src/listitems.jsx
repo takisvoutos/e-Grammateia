@@ -1,72 +1,79 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
+import GradeIcon from '@mui/icons-material/Grade';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import AddHomeIcon from '@mui/icons-material/AddHome';
+import LogoutIcon from '@mui/icons-material/Logout';
 import LayersIcon from '@mui/icons-material/Layers';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import Cookies from 'js-cookie';
+
 
 export const mainListItems = (
   <React.Fragment>
-    <ListItemButton>
+    <ListItemButton component={Link} to="/">
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
       <ListItemText primary="Dashboard" />
     </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <ShoppingCartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Orders" />
-    </ListItemButton>
-    <ListItemButton>
+    <ListItemButton component={Link} to="/user">
       <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="Users" />
     </ListItemButton>
-    <ListItemButton>
+    <ListItemButton component={Link} to="/departments">
       <ListItemIcon>
-        <BarChartIcon />
+        <AddHomeIcon />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
+      <ListItemText primary="Department" />
     </ListItemButton>
-    <ListItemButton>
+    <ListItemButton component={Link} to="/course">
       <ListItemIcon>
-        <LayersIcon />
+        <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary="Integrations" />
+      <ListItemText primary="Course" />
+    </ListItemButton>
+    <ListItemButton component={Link} to="/grade">
+      <ListItemIcon>
+        <GradeIcon />
+      </ListItemIcon>
+      <ListItemText primary="Grade" />
+    </ListItemButton>
+    <ListItemButton component={Link} to="/registration">
+      <ListItemIcon>
+        <AppRegistrationIcon />
+      </ListItemIcon>
+      <ListItemText primary="Course Registration" />
     </ListItemButton>
   </React.Fragment>
 );
 
+const handleLogout = () => {
+  // Clear authentication token
+  Cookies.remove('authTokenNEW');
+
+  // Redirect to login page
+  window.location.replace('/login');
+};
+
 export const secondaryListItems = (
   <React.Fragment>
     <ListSubheader component="div" inset>
-      Saved reports
+      {/* Saved reports */}
     </ListSubheader>
-    <ListItemButton>
+    <ListItemButton component={Link} to="#" onClick={handleLogout}>
       <ListItemIcon>
-        <AssignmentIcon />
+        <LogoutIcon />
       </ListItemIcon>
-      <ListItemText primary="Current month" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Last quarter" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
+      <ListItemText primary="Logout" />
     </ListItemButton>
   </React.Fragment>
 );
