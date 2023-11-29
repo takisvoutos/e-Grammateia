@@ -38,6 +38,7 @@ import Dashboard from './Dashboard';
 import Department from './Department';
 import Course from './Course';
 import Grade from './Grade';
+import Registration from './Registration';
 
 export default function App() {
 
@@ -74,6 +75,10 @@ export default function App() {
         <Route
             path="/grade"
             element={<PrivateRoute element={<Grade />} allowedRoles={['Admin']} />}
+        />
+        <Route
+            path="/registration"
+            element={<PrivateRoute element={<Registration />} allowedRoles={['Admin']} />}
         />
       </Routes>
       {/* Logout button */}
