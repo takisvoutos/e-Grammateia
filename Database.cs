@@ -17,4 +17,5 @@ namespace e_Grammateia.Models;
         public DbSet<Student> Student { get; set; } = null!;
         public DbSet<Teacher> Teacher { get; set; } = null!;
         public DbSet<Registration> Registration { get; set; } = null!;
+        public DbSet<Secretary> Secretary { get; set; } = null!;
     }

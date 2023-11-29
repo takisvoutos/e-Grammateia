@@ -278,6 +278,16 @@ app.MapPost("/user", async (GrammateiaDb db, User user) =>
         
         await db.Teacher.AddAsync(teacher);
         await db.SaveChangesAsync();
+    }else if(user.Role == UserRole.Admin)
+    {
+        var secretary = new Secretary
+        {
+            UserID = user.Id,
+            DepartmentID = user.Secretary.DepartmentID,
+        };
+
+        await db.Secretary.AddAsync(secretary);
+        await db.SaveChangesAsync();
     }
 });
 

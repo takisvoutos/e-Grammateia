@@ -38,6 +38,7 @@ namespace e_Grammateia.Models;
             // Navigation property to link User to Student
             public Student Student { get; set; }
             public Teacher Teacher { get; set; }
+            public Secretary Secretary { get; set; }
 
 
 
