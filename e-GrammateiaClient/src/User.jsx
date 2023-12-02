@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 import UserList from './UserList';
 import Layout from './Layout';
-
-const term = "User";
 
 function UserManagement() {
   const [userData, setUserData] = useState([]);
   const [maxUserId, setMaxUserId] = useState(0);
   const [departments, setDepartments] = useState([]); 
+  const [userDepartment, setUserDepartment] = useState(null);
+  const [userDepartmentID, setUserDepartmentID] = useState(null);
+
 
   useEffect(() => {
     fetchUserData();
@@ -15,8 +17,14 @@ function UserManagement() {
 
   const fetchUserData = async () => {
     try {
-      
-      const response = await fetch('http://localhost:5108/users');
+
+      // Retrieve the user department id from cookies or state
+      const userDepartmentIDFromCookie = Cookies.get('userDepartmentID');
+      setUserDepartmentID(userDepartmentIDFromCookie);
+
+      console.log(userDepartmentIDFromCookie);
+
+      const response = await fetch(`http://localhost:5108/users/${userDepartmentIDFromCookie}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch data from the server');
@@ -34,6 +42,13 @@ function UserManagement() {
       }
       const departmentData = await departmentResponse.json();
       setDepartments(departmentData);
+
+      // Retrieve the user department from cookies or state
+      const userDepartmentFromCookie = Cookies.get('userDepartment');
+      setUserDepartment(userDepartmentFromCookie);
+
+      console.log(userDepartmentFromCookie);
+
 
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -53,23 +68,14 @@ function UserManagement() {
       });
   
       if (!response.ok) {
-        // Handle the error, e.g., show an error message
         console.error('Failed to create user:', response.statusText);
         return;
       }else 
       {
         console.log("User created successfully");
       }
-  
-      // // Assuming the response contains the created user data
-      // const createdUser = await response.json();
-  
-      // // Update the state or perform other actions as needed
-      // setUserData([...userData, createdUser]);
-      // setMaxUserId(maxUserId + 1);
     } catch (error) {
       console.error('Error creating user:', error.message);
-      // Handle the error, e.g., show an error message
     }
   };
   
@@ -126,12 +132,13 @@ function UserManagement() {
     <Layout title="Users">
        <div>
       <UserList
-        name={term}
         data={userData}
         onCreate={handleCreate}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
         departments={departments}
+        userDepartment={userDepartment}
+        userDepartmentID={userDepartmentID}
       />
     </div>
     </Layout>

@@ -212,13 +212,44 @@ app.MapGet("/users", async (GrammateiaDb db) =>
             user.Username,
             user.Email,
             user.Role,
-            // user.Student.Department,
-            Department = user.Role == UserRole.Student ? user.Student.Department : user.Teacher.Department,
+            StudentNumber = user.Role == UserRole.Student ? user.Student.StudentNumber : null,
+            Department = user.Role == UserRole.Student
+                ? user.Student.Department
+                : (user.Role == UserRole.Teacher
+                    ? user.Teacher.Department
+                    : (user.Role == UserRole.Admin
+                        ? user.Secretary.Department
+                        : null)),
         })
         .ToListAsync();
 
     return usersData;
 });
+
+app.MapGet("/users/{departmentId}", async (GrammateiaDb db, int departmentId) =>
+{
+    var usersData = await db.User
+        .Where(user => user.Role == UserRole.Student && user.Student.DepartmentID == departmentId ||
+                       user.Role == UserRole.Teacher && user.Teacher.DepartmentID == departmentId )
+        .Select(user => new
+        {
+            user.Id,
+            user.Name,
+            user.Username,
+            user.Email,
+            user.Role,
+            StudentNumber = user.Role == UserRole.Student ? user.Student.StudentNumber : null,
+            Department = user.Role == UserRole.Student
+                ? user.Student.Department
+                : (user.Role == UserRole.Teacher
+                    ? user.Teacher.Department
+                    : null),
+        })
+        .ToListAsync();
+
+    return usersData;
+});
+
 
 
 app.MapPost("/user", async (GrammateiaDb db, User user) =>
@@ -493,7 +524,14 @@ app.MapGet("/student/{studentId}", async (GrammateiaDb db, int studentId) =>
 
 app.MapPost("/login", async (GrammateiaDb db, [FromBody] LoginRequest loginRequest, IHttpContextAccessor httpContextAccessor) =>
 {
-    var user = await db.User.FirstOrDefaultAsync(u => u.Username == loginRequest.Username);
+    var user = await db.User
+    .Include(u => u.Student)
+        .ThenInclude(s => s.Department)
+    .Include(u => u.Teacher)
+        .ThenInclude(t => t.Department)
+    .Include(u => u.Secretary)
+        .ThenInclude(s => s.Department)
+    .FirstOrDefaultAsync(u => u.Username == loginRequest.Username);
 
     if (user == null || !user.ValidateCredentials(loginRequest.Username, loginRequest.Password))
     {
@@ -501,6 +539,7 @@ app.MapPost("/login", async (GrammateiaDb db, [FromBody] LoginRequest loginReque
     }
     else
     {
+
         // Generate a token
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = new byte[32]; // 256 bits // strong secret key
@@ -529,12 +568,31 @@ app.MapPost("/login", async (GrammateiaDb db, [FromBody] LoginRequest loginReque
             Secure = true
         });
 
-        // var responseData = new
-        // {
-        //     user.Role
-        // };
+        // Retrieve the department based on the user's role
+        var departmentName = user.Role switch
+        {
+            UserRole.Student => user.Student?.Department?.Name,
+            UserRole.Teacher => user.Teacher?.Department?.Name,
+            UserRole.Admin => user.Secretary?.Department?.Name,
+            _ => null 
+        };
 
-        return Results.Ok(new { authToken = tokenHandler.WriteToken(token) });
+        var departmentID = user.Role switch
+        {
+            UserRole.Student => user.Student?.Department?.Id,
+            UserRole.Teacher => user.Teacher?.Department?.Id,
+            UserRole.Admin => user.Secretary?.Department?.Id,
+            _ => null 
+        };
+
+        Console.WriteLine("Department:" + departmentName + departmentID);
+
+        return Results.Ok(new 
+        { 
+            authToken = tokenHandler.WriteToken(token), 
+            departmentName,
+            departmentID
+        });
     }
 }).WithMetadata(new HttpMethodMetadata(new[] { "POST" }));
 

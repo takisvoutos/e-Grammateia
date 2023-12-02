@@ -8,10 +8,6 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import './CSS/styles.css';
 
-
-
-// const theme = createTheme();
-
 const PrivateRoute = ({ element, allowedRoles }) => {
 
   const authToken = Cookies.get('authTokenNEW');
@@ -27,7 +23,6 @@ const PrivateRoute = ({ element, allowedRoles }) => {
     // Redirect to login if not authenticated or not in the allowed role
     return <Navigate to="/login" />;
   }
-
   return element;
 };
 
@@ -41,14 +36,6 @@ import Grade from './Grade';
 import Registration from './Registration';
 
 export default function App() {
-
-  const handleLogout = () => {
-    // Clear authentication token
-    Cookies.remove('authTokenNEW');
-
-    // Redirect to login page
-    window.location.replace('/login');
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -81,17 +68,9 @@ export default function App() {
             element={<PrivateRoute element={<Registration />} allowedRoles={['Admin']} />}
         />
       </Routes>
-      {/* Logout button */}
-      <Link to="#" onClick={handleLogout}>
-          Logout
-      </Link>
     </BrowserRouter>
   </ThemeProvider>
   );
-
-
-
-  
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

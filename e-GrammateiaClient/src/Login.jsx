@@ -5,22 +5,18 @@ import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import MyCustomImage from '/public/favicon.png';
+import MyCustomImage from '/public/logo-login.png';
 import './CSS/styles.css';
 import theme from './theme';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Import the useNavigate hook
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -33,7 +29,7 @@ const Login = () => {
           username: username,
           password: password,
         }),
-        credentials: 'include', // Include credentials (cookies) in the request
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -48,9 +44,16 @@ const Login = () => {
 
       const decoded = jwtDecode(authToken);
       const userRole = decoded.role;
+      const userDepartment = data.departmentName; // Retrieve the department name from the response
+      const userDepartmentID = data.departmentID; // Retrieve the department id from the response
+
+      Cookies.set('userDepartment', userDepartment);
+      Cookies.set('userDepartmentID', userDepartmentID);
 
       console.log('Login successful');
       console.log('User Role:', userRole);
+      console.log('User Department Name:', userDepartment);
+      console.log('User Department ID:', userDepartmentID);
 
       // Redirect to the dashboard
       navigate('/'); // Use the navigate function to redirect to the root path
@@ -85,8 +88,8 @@ const Login = () => {
         >
            <img
             src={MyCustomImage}
-            alt="Custom Avatar"
-            style={{ width: '100px', height: '100px', borderRadius: '50%' }}
+            alt="Logo"
+            style={{ width: '400px', height: 'auto', marginBottom: '50px' }}
           />
           <Typography component="h1" variant="h5">
             Σύνδεση στην γραμματεία

@@ -10,7 +10,6 @@ import GradeIcon from '@mui/icons-material/Grade';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import AddHomeIcon from '@mui/icons-material/AddHome';
 import LogoutIcon from '@mui/icons-material/Logout';
-import LayersIcon from '@mui/icons-material/Layers';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import Cookies from 'js-cookie';
 
@@ -59,6 +58,9 @@ export const mainListItems = (
 const handleLogout = () => {
   // Clear authentication token
   Cookies.remove('authTokenNEW');
+  Cookies.remove('authToken');
+  Cookies.remove('userDepartment');
+  Cookies.remove('userDepartmentID');
 
   // Redirect to login page
   window.location.replace('/login');

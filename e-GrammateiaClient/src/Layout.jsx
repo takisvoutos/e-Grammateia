@@ -1,4 +1,4 @@
-// Layout.js
+
 
 import React from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
@@ -15,7 +15,6 @@ import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -72,6 +71,7 @@ const defaultTheme = createTheme();
 
 const Layout = ({ children, title }) => {
   const [open, setOpen] = React.useState(true);
+  const [imageUrl, setImageUrl] = React.useState("public/logo.png"); 
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -106,7 +106,13 @@ const Layout = ({ children, title }) => {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              {title}
+              {imageUrl && (
+                <img
+                  alt="Logo"
+                  src={imageUrl}
+                  style={{ width: 180, height: 'auto' }}
+                />
+              )}
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
