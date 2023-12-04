@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import CourseList from './CourseList';
+import Layout from './Layout';
+import Cookies from 'js-cookie';
 
 function CourseManagement() {
 
     const [courseData, setCourseData] = useState([]);
     const [maxCourseId, setMaxCourseId] = useState(0);
-    const [departments, setDepartments] = useState([]); 
     const [teachers, setTeachers] = useState([]);
+    const [userDepartment, setUserDepartment] = useState(null);
+    const [userDepartmentID, setUserDepartmentID] = useState(null);
 
     useEffect(() => {
         fetchCourseData();
@@ -14,8 +17,20 @@ function CourseManagement() {
 
       const fetchCourseData = async () => {
         try {
+
+          // Retrieve the user department id from cookies or state
+          const userDepartmentIDFromCookie = Cookies.get('userDepartmentID');
+          setUserDepartmentID(userDepartmentIDFromCookie);
+
+          console.log(userDepartmentIDFromCookie);
+
+          // Retrieve the user department from cookies or state
+          const userDepartmentFromCookie = Cookies.get('userDepartment');
+          setUserDepartment(userDepartmentFromCookie);
+
+          console.log(userDepartmentFromCookie);
           
-          const response = await fetch('http://localhost:5108/courses');
+          const response = await fetch(`http://localhost:5108/courses/byDepartment/${userDepartmentIDFromCookie}`);
           
           if (!response.ok) {
             throw new Error('Failed to fetch data from the server');
@@ -26,16 +41,8 @@ function CourseManagement() {
           setCourseData(coursesData);
           setMaxCourseId(Math.max(...coursesData.map(course => course.id)));
 
-          // Fetch department data
-          const departmentResponse = await fetch('http://localhost:5108/departments');
-          if (!departmentResponse.ok) {
-            throw new Error('Failed to fetch department data from the server');
-          }
-          const departmentData = await departmentResponse.json();
-          setDepartments(departmentData);
-
           // Fetch teacher data
-          const teacherResponse = await fetch('http://localhost:5108/teachers');
+          const teacherResponse = await fetch(`http://localhost:5108/teachers/${userDepartmentIDFromCookie}`);
           if (!teacherResponse.ok) {
             throw new Error('Failed to fetch teacher data from the server');
           }
@@ -120,16 +127,19 @@ function CourseManagement() {
       };
 
       return (
+        <Layout title="Courses">
         <div>
           <CourseList
             data={courseData}
             onCreate={handleCreate}
             onUpdate={handleUpdate}
             onDelete={handleDelete}
-            departments={departments}
             teachers={teachers}
+            userDepartment={userDepartment}
+            userDepartmentID={userDepartmentID}
           />
         </div>
+        </Layout>
       );
 }
 

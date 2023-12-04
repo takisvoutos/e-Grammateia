@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DepartmentList from './DepartmentList';
+import Layout from './Layout';
 
 
 function DepartmentManagement() {
@@ -102,6 +103,7 @@ function DepartmentManagement() {
 
 
   return (
+    <Layout title="Departments">
     <div>
       <DepartmentList
         data={departmentData}
@@ -110,6 +112,7 @@ function DepartmentManagement() {
         onDelete={handleDelete}
       />
     </div>
+    </Layout>
   );
 
 }

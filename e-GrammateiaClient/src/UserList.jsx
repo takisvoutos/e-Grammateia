@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Box, List, ListItem, ListItemText, IconButton, Select, MenuItem,Table, TableBody, TableCell, TableContainer, TableHead, TableRow,} from '@mui/material';
+import { TextField, Button, Box, IconButton, Select, MenuItem,Table, TableBody, TableCell, TableContainer, TableHead, TableRow,} from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 
-function UserList({data, onCreate, onUpdate, onDelete, error, departments, userDepartment, userDepartmentID }) {
+function UserList({data, onCreate, onUpdate, onDelete, error, userDepartment, userDepartmentID }) {
 
   const [formData, setFormData] = useState({ 
     id: '', 
@@ -115,7 +115,10 @@ function UserList({data, onCreate, onUpdate, onDelete, error, departments, userD
     </>
   )}
       <TextField label="Email" name="email" value={formData.email} onChange={handleFormChange} />
-      <Select label="Ρόλος" name="role" value={formData.role} onChange={handleFormChange}> 
+      <Select label="Ρόλος" name="role" value={formData.role} onChange={handleFormChange} displayEmpty> 
+            <MenuItem value="" disabled>
+              Επιλέξτε ρόλο χρήστη
+            </MenuItem>
           {/* <MenuItem value={0}>Admin</MenuItem> */}
           <MenuItem value={1}>Καθηγητής</MenuItem>
           <MenuItem value={2}>Φοιτητής</MenuItem>
@@ -147,7 +150,6 @@ function UserList({data, onCreate, onUpdate, onDelete, error, departments, userD
             <TableRow style={{ backgroundColor: 'lightgrey' }}>
               <TableCell>Όνομα</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Ρόλος</TableCell>
               <TableCell>Τμήμα</TableCell>
               <TableCell>Μητρώο</TableCell>
               <TableCell>Ενέργειες</TableCell>
@@ -158,7 +160,6 @@ function UserList({data, onCreate, onUpdate, onDelete, error, departments, userD
               <TableRow key={item.id}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.email}</TableCell>
-                <TableCell>{item.role}</TableCell>
                 <TableCell>{item.department ? item.department.name : 'N/A'}</TableCell>
                 <TableCell>{item.studentNumber}</TableCell>
                 <TableCell>
@@ -183,7 +184,6 @@ function UserList({data, onCreate, onUpdate, onDelete, error, departments, userD
             <TableRow style={{ backgroundColor: 'lightgrey' }}>
               <TableCell>Όνομα</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Ρόλος</TableCell>
               <TableCell>Τμήμα</TableCell>
               <TableCell>Ενέργειες</TableCell>
             </TableRow>
@@ -193,7 +193,6 @@ function UserList({data, onCreate, onUpdate, onDelete, error, departments, userD
               <TableRow key={item.id}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.email}</TableCell>
-                <TableCell>{item.role}</TableCell>
                 <TableCell>{item.department ? item.department.name : 'N/A'}</TableCell>
                 <TableCell>
                   <IconButton aria-label="edit" onClick={() => handleEdit(item)}>

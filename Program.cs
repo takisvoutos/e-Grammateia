@@ -131,6 +131,19 @@ app.MapGet("/courses/{id}", async (GrammateiaDb db, int id) =>
     return course;
 });
 
+app.MapGet("/courses/byDepartment/{departmentID}", async (GrammateiaDb db, int departmentID) => 
+{
+    // Fetch the courses based on the department ID, including the associated department and Teacher
+    var course = await db.Course
+        .Include(c => c.Department)
+        .Include(c => c.Teacher)
+        .Where(c => c.DepartmentID == departmentID)
+        .ToListAsync();
+
+    return course;
+});
+
+
 app.MapPost("/courses", async (GrammateiaDb db, Course course) =>
 {
 
@@ -458,6 +471,32 @@ app.MapGet("/teachers", async (GrammateiaDb db) =>
 
     return teachers;
 });
+
+app.MapGet("/teachers/{departmentID}", async (GrammateiaDb db, int departmentID) => 
+{
+    var teachersInDepartment = await db.Teacher
+        .Include(s => s.Department)
+        .Include(s => s.User)
+        .Where(s => s.DepartmentID == departmentID)
+        .Select(s => new
+        {
+            s.TeacherID,
+            s.UserID,
+            s.DepartmentID,
+            s.Department,
+            User = new
+            {
+                s.User.Name,
+                s.User.Username,
+                s.User.Email,
+                s.User.Role
+            }
+        })
+        .ToListAsync();
+
+    return teachersInDepartment;
+});
+
 
 // Student //
 

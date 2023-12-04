@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Box, List, ListItem, ListItemText, IconButton, Select, MenuItem,} from '@mui/material';
+import { TextField, Button, Box, IconButton, Select, MenuItem,Table, TableBody, TableCell, TableContainer, TableHead, TableRow,} from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
+import { Typography } from '@mui/material';
 
-function CourseList({data,onCreate,onUpdate,onDelete,error,departments,teachers})
+
+function CourseList({data,onCreate,onUpdate,onDelete,error,teachers, userDepartment, userDepartmentID})
 {
 
     const [formData, setFormData] = useState({ 
@@ -35,7 +37,7 @@ function CourseList({data,onCreate,onUpdate,onDelete,error,departments,teachers}
           semester: formData.semester,
           ects: formData.ects,
           course_Type: formData.type,
-          departmentID: formData.department,
+          departmentID: userDepartmentID,
           teacherID: formData.teacher,
         };
       
@@ -89,45 +91,97 @@ function CourseList({data,onCreate,onUpdate,onDelete,error,departments,teachers}
         <h2>Μαθήματα</h2>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12}}>
           <TextField label="Όνομα μαθήματος" name="name" value={formData.name} onChange={handleFormChange} />
-          <TextField label="Εξάμηνο" name="semester" value={formData.semester} onChange={handleFormChange} />
-          <TextField label="ECTS" name="ects" value={formData.ects} onChange={handleFormChange} />
-          <TextField label="Τύπος μαθήματος" name="type" value={formData.type} onChange={handleFormChange} />
-          <Select label="Τμήμα" name="department" value={formData.department} onChange={handleFormChange}>
-              {departments.map(department => (
-                <MenuItem key={department.id} value={department.id}>
-                  {department.name}
-                </MenuItem>
-              ))}
-            </Select>
-            <Select label="Καθηγητής" name="teacher" value={formData.teacher} onChange={handleFormChange}>
+          {/* <TextField label="Εξάμηνο" name="semester" value={formData.semester} onChange={handleFormChange} /> */}
+          <TextField
+            label="Εξάμηνο"
+            name="semester"
+            type="number"
+            inputProps={{ min: 1, max: 8, step: 1 }}
+            value={formData.semester}
+            onChange={handleFormChange}
+            sx={{ width: '100px' }}
+          />
+          <TextField label="ECTS" name="ects" value={formData.ects} onChange={handleFormChange}/>
+          <Select
+            label="Τύπος μαθήματος"
+            name="type"
+            value={formData.type}
+            onChange={handleFormChange}
+            displayEmpty
+          >
+            <MenuItem value="" disabled>Τύπος μαθήματος</MenuItem>
+            <MenuItem value="ΥΠΟΧΡΕΩΤΙΚΟ">ΥΠΟΧΡΕΩΤΙΚΟ</MenuItem>
+            <MenuItem value="ΕΠΙΛΟΓΗΣ">ΕΠΙΛΟΓΗΣ</MenuItem>
+          </Select>
+          {/* <TextField label="Τύπος μαθήματος" name="type" value={formData.type} onChange={handleFormChange} /> */}
+          <TextField
+              label={'Τμήμα'}
+              name="department"
+              value={userDepartment || ''}
+              onChange={handleFormChange}
+              disabled={editingId !== null}
+           />
+            <Select label="Καθηγητής" name="teacher" value={formData.teacher} onChange={handleFormChange} displayEmpty>
+            <MenuItem value="" disabled>
+              Επιλέξτε Καθηγητή
+            </MenuItem>
               {teachers.map(teacher => (
                 <MenuItem key={teacher.teacherID} value={teacher.teacherID}>
                   {teacher.user.name}
                 </MenuItem>
               ))}
             </Select>
-          <Button sx={{ mr: 1 }} variant="contained" type="submit">{editingId === null ? 'Create' : 'Update'}</Button>
-          {editingId !== null && <Button variant="contained" color="secondary" onClick={handleCancelEdit}>Cancel</Button>}
+          <Button sx={{ mr: 1 }} variant="contained" type="submit">{editingId === null ? 'ΔΗΜΙΟΥΡΓΙΑ' : 'ΕΝΗΜΕΡΩΣΗ'}</Button>
+          {editingId !== null && <Button variant="contained" color="secondary" onClick={handleCancelEdit}>ΑΚΥΡΩΣΗ</Button>}
         </form>
-        <List sx={{ width: '100%', maxWidth: 360 }}>
-          {data.map(item => (
-            <ListItem key={item.id} secondaryAction={
-              <>
-                <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(item)}>
-                  <Edit />
-                </IconButton>
-                <IconButton edge="end" aria-label="delete" onClick={() => onDelete(item.id)}>
-                  <Delete />
-                </IconButton>
-              </>
-            }>
-             <ListItemText
-                  primary={`Μάθημα: ${item.name}`}
-                  secondary={`Εξάμηνο: ${item.semester}, ECTS: ${item.ects}, Τύπος: ${item.course_Type}, Τμήμα: ${item.department ? item.department.name : 'N/A'}, Καθηγητής: ${getTeacherName(item.teacher ? item.teacher.teacherID : null)}`}
-                />
-              </ListItem>
-          ))}
-        </List>
+
+      <TableContainer sx={{ maxWidth: '80%', mt: 3, maxHeight: '500px', overflowY: 'auto' }}>
+        <h3>Μαθήματα</h3>
+
+      {Array.from(new Set(data.map(item => item.semester))).map((semester, index) => (
+          <div key={index}>
+            <Typography variant="h6" gutterBottom>
+              Εξάμηνο {semester}
+            </Typography>
+
+            <Table sx={{ mt: 1 }}>
+              <TableHead>
+                <TableRow style={{ backgroundColor: 'lightgrey' }}>
+                  <TableCell>Μάθημα</TableCell>
+                  <TableCell>Εξάμηνο</TableCell>
+                  <TableCell>ECTS</TableCell>
+                  <TableCell>Τύπος</TableCell>
+                  <TableCell>Τμήμα</TableCell>
+                  <TableCell>Καθηγητής</TableCell>
+                  <TableCell>Ενέργειες</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data
+                  .filter(item => item.semester === semester)
+                  .map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>{item.semester}</TableCell>
+                      <TableCell>{item.ects}</TableCell>
+                      <TableCell>{item.course_Type}</TableCell>
+                      <TableCell>{item.department ? item.department.name : 'N/A'}</TableCell>
+                      <TableCell>{getTeacherName(item.teacher ? item.teacher.teacherID : null)}</TableCell>
+                      <TableCell>
+                        <IconButton aria-label="edit" onClick={() => handleEdit(item)}>
+                          <Edit />
+                        </IconButton>
+                        <IconButton aria-label="delete" onClick={() => onDelete(item.id)}>
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </div>
+        ))}
+      </TableContainer>
         {error && <p>{error}</p>}
       </Box>
     );

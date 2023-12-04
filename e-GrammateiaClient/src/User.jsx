@@ -6,7 +6,6 @@ import Layout from './Layout';
 function UserManagement() {
   const [userData, setUserData] = useState([]);
   const [maxUserId, setMaxUserId] = useState(0);
-  const [departments, setDepartments] = useState([]); 
   const [userDepartment, setUserDepartment] = useState(null);
   const [userDepartmentID, setUserDepartmentID] = useState(null);
 
@@ -34,14 +33,6 @@ function UserManagement() {
       
       setUserData(usersData);
       setMaxUserId(Math.max(...usersData.map(user => user.id)));
-
-      // Fetch department data
-      const departmentResponse = await fetch('http://localhost:5108/departments');
-      if (!departmentResponse.ok) {
-        throw new Error('Failed to fetch department data from the server');
-      }
-      const departmentData = await departmentResponse.json();
-      setDepartments(departmentData);
 
       // Retrieve the user department from cookies or state
       const userDepartmentFromCookie = Cookies.get('userDepartment');
@@ -136,7 +127,6 @@ function UserManagement() {
         onCreate={handleCreate}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
-        departments={departments}
         userDepartment={userDepartment}
         userDepartmentID={userDepartmentID}
       />
