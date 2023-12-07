@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Box, IconButton, Select, MenuItem,Table, TableBody, TableCell, TableContainer, TableHead, TableRow,} from '@mui/material';
+import { TextField, Button, Box, IconButton, Select, MenuItem,Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { Typography } from '@mui/material';
 
@@ -135,7 +135,7 @@ function CourseList({data,onCreate,onUpdate,onDelete,error,teachers, userDepartm
           {editingId !== null && <Button variant="contained" color="secondary" onClick={handleCancelEdit}>ΑΚΥΡΩΣΗ</Button>}
         </form>
 
-      <TableContainer sx={{ maxWidth: '80%', mt: 3, maxHeight: '500px', overflowY: 'auto' }}>
+      <TableContainer sx={{ maxWidth: '80%', mt: 3, maxHeight: '800px', overflowY: 'auto' }}>
         <h3>Μαθήματα</h3>
 
       {Array.from(new Set(data.map(item => item.semester))).map((semester, index) => (

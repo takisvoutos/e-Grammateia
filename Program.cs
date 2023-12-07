@@ -143,6 +143,51 @@ app.MapGet("/courses/byDepartment/{departmentID}", async (GrammateiaDb db, int d
     return course;
 });
 
+app.MapGet("/courses/registration/{departmentID}", async (GrammateiaDb db, int departmentID) => 
+{
+    DateTime currentDate = DateTime.Now;
+    int currentMonth = currentDate.Month;
+
+    List<Course> courses;
+
+    if (currentMonth >= 1 && currentMonth <= 8)
+    {
+        courses = await db.Course
+        .Include(c => c.Department)
+        .Include(c => c.Teacher)
+        .Where(c => c.DepartmentID == departmentID && c.Semester % 2 == 0)
+        .ToListAsync();
+    }
+    else if (currentMonth >= 9 && currentMonth <= 12)
+    {
+        courses = await db.Course
+        .Include(c => c.Department)
+        .Include(c => c.Teacher)
+        .Where(c => c.DepartmentID == departmentID && c.Semester % 2 != 0)
+        .ToListAsync();
+    }
+    else
+    {
+        // Handle the case where currentMonth is not within expected ranges
+        courses = new List<Course>(); // You might want to set it to an empty list or handle it differently based on your requirements
+    }
+
+    return courses;
+});
+
+
+app.MapGet("/courses/teacher/{teacherID}", async (GrammateiaDb db, int teacherID) => 
+{
+    // Fetch the courses based on the teacher ID, including the associated department and Teacher
+    var course = await db.Course
+        .Include(c => c.Department)
+        .Include(c => c.Teacher)
+        .Where(c => c.TeacherID == teacherID)
+        .ToListAsync();
+
+    return course;
+});
+
 
 app.MapPost("/courses", async (GrammateiaDb db, Course course) =>
 {
@@ -526,6 +571,33 @@ app.MapGet("/students", async (GrammateiaDb db) =>
     return students;
 });
 
+app.MapGet("/students/{departmentID}", async (GrammateiaDb db, int departmentID) => 
+{
+    var students = await db.Student
+        .Include(s => s.Department)
+        .Include(s => s.User)
+        .Where(s => s.DepartmentID == departmentID)
+        .Select(s => new
+        {
+            s.StudentID,
+            s.StudentNumber,
+            s.RegistrationDate,
+            s.DepartmentID,
+            s.Department,
+            // s.UserID,
+            User = new
+            {
+                s.User.Name,
+                s.User.Username,
+                s.User.Email,
+                s.User.Role
+            }
+        })
+        .ToListAsync();
+
+    return students;
+});
+
 app.MapGet("/student/{studentId}", async (GrammateiaDb db, int studentId) => 
 {
     var student = await db.Student
@@ -624,14 +696,55 @@ app.MapPost("/login", async (GrammateiaDb db, [FromBody] LoginRequest loginReque
             _ => null 
         };
 
-        Console.WriteLine("Department:" + departmentName + departmentID);
+        int? teacherID = null;
+        int? studentID = null;
 
-        return Results.Ok(new 
-        { 
-            authToken = tokenHandler.WriteToken(token), 
-            departmentName,
-            departmentID
-        });
+        switch (user.Role)
+        {
+            case UserRole.Teacher:
+                teacherID = user.Teacher?.TeacherID;
+                break;
+            case UserRole.Student:
+                studentID = user.Student?.StudentID;
+                break;
+        }
+
+        object response;
+
+        if (teacherID.HasValue)
+        {
+            response = new
+            {
+                authToken = tokenHandler.WriteToken(token),
+                departmentName,
+                departmentID,
+                teacherID
+            };
+        
+        }
+        else if (studentID.HasValue)
+        {
+            response = new
+            {
+                authToken = tokenHandler.WriteToken(token),
+                departmentName,
+                departmentID,
+                studentID
+            };
+        }
+        else
+        {
+            response = new
+            {
+                authToken = tokenHandler.WriteToken(token),
+                departmentName,
+                departmentID
+            };
+        }
+
+        
+
+        return Results.Ok(response);
     }
 }).WithMetadata(new HttpMethodMetadata(new[] { "POST" }));
 
@@ -642,15 +755,30 @@ app.MapGet("/grade", async (GrammateiaDb db) =>
     var grades = await db.Grade
     .Include(g => g.Course)
     .Include(g => g.Student)
+    .Include(g => g.Teacher)
     .ToListAsync();
     return grades;
 });
+
+app.MapGet("/grade/teacher/{id}", async (GrammateiaDb db, int id) => 
+{
+    var grades = await db.Grade
+        .Include(g => g.Course)
+        .Include(g => g.Student)
+        .Include(g => g.Teacher)
+        .Where(g => g.TeacherID == id)
+        .ToListAsync();
+
+    return grades;
+});
+
 
 app.MapGet("/grade/{id}", async (GrammateiaDb db, int id) =>
 {
     var grade = await db.Grade
     .Include(g => g.Course)
     .Include(g => g.Student)
+    .Include(g => g.Teacher)
     .FirstOrDefaultAsync(g => g.Id == id);
 
     return grade;
@@ -696,6 +824,11 @@ app.MapPut("grade/{id}", async (GrammateiaDb db, Grades updateGrade, int id) =>
     if (updateGrade.Exam != null)
     {
         existingGrade.Exam = updateGrade.Exam;
+    }
+
+    if (updateGrade.TeacherID != null)
+    {
+        existingGrade.TeacherID = updateGrade.TeacherID;
     }
 
     await db.SaveChangesAsync();

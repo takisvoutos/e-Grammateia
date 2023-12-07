@@ -12,6 +12,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MyCustomImage from '/public/logo-login.png';
 import './CSS/styles.css';
 import theme from './theme';
+import { Cookie } from '@mui/icons-material';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -46,14 +47,20 @@ const Login = () => {
       const userRole = decoded.role;
       const userDepartment = data.departmentName; // Retrieve the department name from the response
       const userDepartmentID = data.departmentID; // Retrieve the department id from the response
+      const userTeacherID = data.teacherID; // Retrieve the teacher id from the response
+      const userStudentID = data.studentID;
 
       Cookies.set('userDepartment', userDepartment);
       Cookies.set('userDepartmentID', userDepartmentID);
+      Cookies.set('userTeacherID', userTeacherID);
+      Cookies.set('userStudentID', userStudentID);
 
       console.log('Login successful');
       console.log('User Role:', userRole);
       console.log('User Department Name:', userDepartment);
       console.log('User Department ID:', userDepartmentID);
+      console.log('User Teacher ID:', userTeacherID);
+      console.log('User Student ID:', userStudentID);
 
       // Redirect to the dashboard
       navigate('/'); // Use the navigate function to redirect to the root path

@@ -143,9 +143,9 @@ export default function Dashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            {mainListItems()}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {secondaryListItems()}
           </List>
         </Drawer>
         <Box

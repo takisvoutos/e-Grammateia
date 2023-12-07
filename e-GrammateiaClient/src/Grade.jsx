@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GradeList from './GradeList';
+import Layout from './Layout';
+import Cookies from 'js-cookie';
 
 function GradeManagement() {
 
@@ -7,6 +9,8 @@ function GradeManagement() {
     const [maxGradeId, setMaxGradeId] = useState(0);
     const [courses, setCourses] = useState([]); 
     const [students, setStudents] = useState([]);
+    const [userTeacherID, setUserTeacherID] = useState(null);
+    const [userDepartmentID, setUserDepartmentID] = useState(null);
 
     useEffect(() => {
         fetchGradeData();
@@ -14,8 +18,12 @@ function GradeManagement() {
 
       const fetchGradeData = async () => {
         try {
+
+          // Retrieve the teacher id from cookies or state
+          const userTeacherIDFromCookie = Cookies.get('userTeacherID');
+          setUserTeacherID(userTeacherIDFromCookie);
           
-          const response = await fetch('http://localhost:5108/grade');
+          const response = await fetch(`http://localhost:5108/grade/teacher/${userTeacherIDFromCookie}`);
           
           if (!response.ok) {
             throw new Error('Failed to fetch data from the server');
@@ -27,15 +35,19 @@ function GradeManagement() {
           setMaxGradeId(Math.max(...gradesData.map(grade => grade.id)));
 
           // Fetch course data
-          const courseResponse = await fetch('http://localhost:5108/courses');
+          const courseResponse = await fetch(`http://localhost:5108/courses/teacher/${userTeacherIDFromCookie}`);
           if (!courseResponse.ok) {
             throw new Error('Failed to fetch course data from the server');
           }
           const courseData = await courseResponse.json();
           setCourses(courseData);
 
+          // Retrieve the user department id from cookies or state
+          const userDepartmentIDFromCookie = Cookies.get('userDepartmentID');
+          setUserDepartmentID(userDepartmentIDFromCookie);
+
           // Fetch student data
-          const studentResponse = await fetch('http://localhost:5108/students');
+          const studentResponse = await fetch(`http://localhost:5108/students/${userDepartmentIDFromCookie}`);
           if (!studentResponse.ok) {
             throw new Error('Failed to fetch student data from the server');
           }
@@ -122,6 +134,7 @@ function GradeManagement() {
 
 
     return (
+      <Layout title="Grades">
         <div>
           <GradeList
             data={gradeData}
@@ -130,8 +143,10 @@ function GradeManagement() {
             onDelete={handleDelete}
             courses={courses}
             students={students}
+            teacher={userTeacherID}
           />
         </div>
+        </Layout>
       );
 
 }

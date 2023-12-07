@@ -20,6 +20,10 @@ namespace e_Grammateia.Models;
           public int CourseID { get; set; }
           public Course Course { get; set; }
           public string Exam { get; set; }
+          [Required]
+          [ForeignKey("Teacher")]
+           public int TeacherID { get; set; }
+           public Teacher Teacher { get; set; }
 
 
     }

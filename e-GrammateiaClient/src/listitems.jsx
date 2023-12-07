@@ -12,70 +12,89 @@ import AddHomeIcon from '@mui/icons-material/AddHome';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 
-export const mainListItems = (
-  <React.Fragment>
-    <ListItemButton component={Link} to="/">
-      <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Dashboard" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/user">
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Users" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/departments">
-      <ListItemIcon>
-        <AddHomeIcon />
-      </ListItemIcon>
-      <ListItemText primary="Department" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/course">
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Course" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/grade">
-      <ListItemIcon>
-        <GradeIcon />
-      </ListItemIcon>
-      <ListItemText primary="Grade" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/registration">
-      <ListItemIcon>
-        <AppRegistrationIcon />
-      </ListItemIcon>
-      <ListItemText primary="Course Registration" />
-    </ListItemButton>
-  </React.Fragment>
-);
+export const mainListItems = () => {
+  // Define userRole inside mainListItems
+  const authToken = Cookies.get('authTokenNEW');
+  const decoded = authToken ? jwtDecode(authToken) : null;
+  const userRole = decoded ? decoded.role : null;
 
-const handleLogout = () => {
-  // Clear authentication token
-  Cookies.remove('authTokenNEW');
-  Cookies.remove('authToken');
-  Cookies.remove('userDepartment');
-  Cookies.remove('userDepartmentID');
-
-  // Redirect to login page
-  window.location.replace('/login');
+  return (
+    <React.Fragment>
+      <ListItemButton component={Link} to="/">
+        <ListItemIcon>
+          <DashboardIcon />
+        </ListItemIcon>
+        <ListItemText primary="Dashboard" />
+      </ListItemButton>
+      {userRole === 'Admin' && (
+        <>
+          <ListItemButton component={Link} to="/user">
+            <ListItemIcon>
+              <PeopleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Users" />
+          </ListItemButton>
+          {/* <ListItemButton component={Link} to="/departments">
+            <ListItemIcon>
+              <AddHomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="Department" />
+          </ListItemButton> */}
+          <ListItemButton component={Link} to="/course">
+            <ListItemIcon>
+              <AssignmentIcon />
+            </ListItemIcon>
+            <ListItemText primary="Course" />
+          </ListItemButton>
+        </>
+      )}
+      {userRole === 'Teacher' && (
+        <ListItemButton component={Link} to="/grade">
+          <ListItemIcon>
+            <GradeIcon />
+          </ListItemIcon>
+          <ListItemText primary="Grade" />
+        </ListItemButton>
+      )}
+      {userRole === 'Student' && (
+        <ListItemButton component={Link} to="/registration">
+          <ListItemIcon>
+            <AppRegistrationIcon />
+          </ListItemIcon>
+          <ListItemText primary="Course Registration" />
+        </ListItemButton>
+      )}
+    </React.Fragment>
+  );
 };
 
-export const secondaryListItems = (
-  <React.Fragment>
-    <ListSubheader component="div" inset>
-      {/* Saved reports */}
-    </ListSubheader>
-    <ListItemButton component={Link} to="#" onClick={handleLogout}>
-      <ListItemIcon>
-        <LogoutIcon />
-      </ListItemIcon>
-      <ListItemText primary="Logout" />
-    </ListItemButton>
-  </React.Fragment>
-);
+export const secondaryListItems = () => {
+  const handleLogout = () => {
+    // Clear authentication token
+    Cookies.remove('authTokenNEW');
+    Cookies.remove('authToken');
+    Cookies.remove('userDepartment');
+    Cookies.remove('userDepartmentID');
+    Cookies.remove('userTeacherID');
+
+    // Redirect to login page
+    window.location.replace('/login');
+  };
+
+  return (
+    <React.Fragment>
+      <ListSubheader component="div" inset>
+        {/* Saved reports */}
+      </ListSubheader>
+      <ListItemButton component={Link} to="#" onClick={handleLogout}>
+        <ListItemIcon>
+          <LogoutIcon />
+        </ListItemIcon>
+        <ListItemText primary="Logout" />
+      </ListItemButton>
+    </React.Fragment>
+  );
+};

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RegistrationList from './RegistrationList';
+import Layout from './Layout';
+import Cookies from 'js-cookie';
 
 function RegistrationManagement() {
     
@@ -7,6 +9,8 @@ function RegistrationManagement() {
     const [maxRegistrationId, setMaxRegistrationId] = useState(0);
     const [courses, setCourses] = useState([]); 
     const [students, setStudents] = useState([]);
+    const [userDepartmentID, setUserDepartmentID] = useState(null);
+    const [userStudentID, setUserStudentID] = useState(null);
 
     useEffect(() => {
         fetchRegistrationData();
@@ -15,8 +19,16 @@ function RegistrationManagement() {
 
       const fetchRegistrationData = async () => {
         try {
+
+          // Retrieve the user department id from cookies or state
+          const userDepartmentIDFromCookie = Cookies.get('userDepartmentID');
+          setUserDepartmentID(userDepartmentIDFromCookie);
+
+          // Retrieve the user student id from cookies or state
+          const userStudentIDFromCookie = Cookies.get('userStudentID');
+          setUserStudentID(userStudentIDFromCookie);
           
-          const response = await fetch('http://localhost:5108/registration');
+          const response = await fetch(`http://localhost:5108/registration/${userStudentIDFromCookie}`);
           
           if (!response.ok) {
             throw new Error('Failed to fetch data from the server');
@@ -27,8 +39,9 @@ function RegistrationManagement() {
           setRegistrationData(registrationsData);
           setMaxRegistrationId(Math.max(...registrationsData.map(registration => registration.id)));
 
+
           // Fetch course data
-          const courseResponse = await fetch('http://localhost:5108/courses');
+          const courseResponse = await fetch(`http://localhost:5108/courses/registration/${userDepartmentIDFromCookie}`);
           if (!courseResponse.ok) {
             throw new Error('Failed to fetch course data from the server');
           }
@@ -121,6 +134,7 @@ function RegistrationManagement() {
       };
 
       return (
+        <Layout title="Registration">
         <div>
           <RegistrationList
             data={registrationData}
@@ -129,8 +143,10 @@ function RegistrationManagement() {
             onDelete={handleDelete}
             courses={courses}
             students={students}
+            userStudentID={userStudentID}
           />
         </div>
+        </Layout>
       );
 
 

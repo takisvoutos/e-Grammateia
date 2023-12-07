@@ -61,11 +61,11 @@ export default function App() {
         />
         <Route
             path="/grade"
-            element={<PrivateRoute element={<Grade />} allowedRoles={['Admin']} />}
+            element={<PrivateRoute element={<Grade />} allowedRoles={['Teacher']} />}
         />
         <Route
             path="/registration"
-            element={<PrivateRoute element={<Registration />} allowedRoles={['Admin']} />}
+            element={<PrivateRoute element={<Registration />} allowedRoles={['Student']} />}
         />
       </Routes>
     </BrowserRouter>

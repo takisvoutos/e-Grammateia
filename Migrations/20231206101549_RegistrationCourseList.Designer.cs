@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using e_Grammateia.Models;
 
@@ -10,9 +11,10 @@ using e_Grammateia.Models;
 namespace e_Grammateia.Migrations
 {
     [DbContext(typeof(GrammateiaDb))]
-    partial class GrammateiaDbModelSnapshot : ModelSnapshot
+    [Migration("20231206101549_RegistrationCourseList")]
+    partial class RegistrationCourseList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");
@@ -37,6 +39,9 @@ namespace e_Grammateia.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("RegistrationRegId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Semester")
                         .HasColumnType("INTEGER");
 
@@ -46,6 +51,8 @@ namespace e_Grammateia.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentID");
+
+                    b.HasIndex("RegistrationRegId");
 
                     b.HasIndex("TeacherID");
 
@@ -111,9 +118,6 @@ namespace e_Grammateia.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CourseID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("RegDate")
                         .HasColumnType("TEXT");
 
@@ -121,8 +125,6 @@ namespace e_Grammateia.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("RegId");
-
-                    b.HasIndex("CourseID");
 
                     b.HasIndex("StudentID");
 
@@ -239,6 +241,10 @@ namespace e_Grammateia.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("e_Grammateia.Models.Registration", null)
+                        .WithMany("Courses")
+                        .HasForeignKey("RegistrationRegId");
+
                     b.HasOne("e_Grammateia.Models.Teacher", "Teacher")
                         .WithMany()
                         .HasForeignKey("TeacherID")
@@ -279,19 +285,11 @@ namespace e_Grammateia.Migrations
 
             modelBuilder.Entity("e_Grammateia.Models.Registration", b =>
                 {
-                    b.HasOne("e_Grammateia.Models.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("e_Grammateia.Models.Student", "Student")
                         .WithMany()
                         .HasForeignKey("StudentID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Course");
 
                     b.Navigation("Student");
                 });
@@ -351,6 +349,11 @@ namespace e_Grammateia.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("e_Grammateia.Models.Registration", b =>
+                {
+                    b.Navigation("Courses");
                 });
 
             modelBuilder.Entity("e_Grammateia.Models.User", b =>
