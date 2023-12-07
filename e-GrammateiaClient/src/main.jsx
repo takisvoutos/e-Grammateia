@@ -34,6 +34,7 @@ import Department from './Department';
 import Course from './Course';
 import Grade from './Grade';
 import Registration from './Registration';
+import StudentCourse from './StudentCourses';
 
 export default function App() {
 
@@ -66,6 +67,10 @@ export default function App() {
         <Route
             path="/registration"
             element={<PrivateRoute element={<Registration />} allowedRoles={['Student']} />}
+        />
+         <Route
+            path="/studentCourses"
+            element={<PrivateRoute element={<StudentCourse />} allowedRoles={['Student']} />}
         />
       </Routes>
     </BrowserRouter>

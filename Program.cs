@@ -169,7 +169,7 @@ app.MapGet("/courses/registration/{departmentID}", async (GrammateiaDb db, int d
     else
     {
         // Handle the case where currentMonth is not within expected ranges
-        courses = new List<Course>(); // You might want to set it to an empty list or handle it differently based on your requirements
+        courses = new List<Course>();
     }
 
     return courses;
@@ -870,6 +870,26 @@ app.MapGet("/registration/{id}", async (GrammateiaDb db, int id) =>
 
     return registration;
 }); 
+
+// get registration by Student with grades
+app.MapGet("/registration/grade/{id}", async (GrammateiaDb db, int id) =>
+{
+    var registrationWithGrades = await db.Registration
+        .Include(r => r.Course)
+        .Include(r => r.Student)
+        .Select(r => new
+        {
+            Registration = r,
+            Grades = db.Grade
+                .Where(g => g.CourseID == r.CourseID && g.StudentID == r.StudentID)
+                .ToList()
+        })
+        .Where(r => r.Registration.StudentID == id)
+        .ToListAsync();
+
+    return registrationWithGrades;
+});
+
 
 app.MapPost("/registration", async (GrammateiaDb db, Registration registration) =>
 {

@@ -8,7 +8,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import GradeIcon from '@mui/icons-material/Grade';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import AddHomeIcon from '@mui/icons-material/AddHome';
+import BookIcon from '@mui/icons-material/Book';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import Cookies from 'js-cookie';
@@ -27,7 +27,7 @@ export const mainListItems = () => {
         <ListItemIcon>
           <DashboardIcon />
         </ListItemIcon>
-        <ListItemText primary="Dashboard" />
+        <ListItemText primary="Αρχική" />
       </ListItemButton>
       {userRole === 'Admin' && (
         <>
@@ -47,7 +47,7 @@ export const mainListItems = () => {
             <ListItemIcon>
               <AssignmentIcon />
             </ListItemIcon>
-            <ListItemText primary="Course" />
+            <ListItemText primary="Μαθήματα" />
           </ListItemButton>
         </>
       )}
@@ -56,16 +56,24 @@ export const mainListItems = () => {
           <ListItemIcon>
             <GradeIcon />
           </ListItemIcon>
-          <ListItemText primary="Grade" />
+          <ListItemText primary="Βαθμολογίες" />
         </ListItemButton>
       )}
       {userRole === 'Student' && (
+        <>
         <ListItemButton component={Link} to="/registration">
           <ListItemIcon>
             <AppRegistrationIcon />
           </ListItemIcon>
-          <ListItemText primary="Course Registration" />
+          <ListItemText primary="Δήλωση μαθημάτων" />
         </ListItemButton>
+         <ListItemButton component={Link} to="/studentCourses">
+         <ListItemIcon>
+           <BookIcon />
+         </ListItemIcon>
+         <ListItemText primary="Μαθήματα" />
+       </ListItemButton>
+       </>
       )}
     </React.Fragment>
   );
@@ -93,7 +101,7 @@ export const secondaryListItems = () => {
         <ListItemIcon>
           <LogoutIcon />
         </ListItemIcon>
-        <ListItemText primary="Logout" />
+        <ListItemText primary="Αποσύνδεση" />
       </ListItemButton>
     </React.Fragment>
   );

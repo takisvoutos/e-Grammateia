@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Box, IconButton,Checkbox,FormControlLabel, FormControl,TableContainer, Table, TableHead, TableRow, TableCell, TableBody} from '@mui/material';
 import { Divider, Typography } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
 import React from 'react';
 
 
@@ -146,13 +145,15 @@ function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStu
             </form>
             <h3>Δηλώσεις μαθημάτων ανά εξάμηνο</h3>
            {Object.entries(organizedData).map(([semester, semesterData]) => (
-              <div key={semester}>
+              <React.Fragment key={semester}>
                 <h3>{`Εξάμηνο ${semester}`}</h3>
                 <TableContainer sx={{ maxWidth: '100%', mt: 3, maxHeight: '800px', overflowY: 'auto' }}>
                   <Table>
                     <TableHead>
                       <TableRow style={{ backgroundColor: 'lightgrey' }}>
                         <TableCell>Μάθημα</TableCell>
+                        <TableCell>Τύπος μαθήματος</TableCell>
+                        <TableCell>ECTS</TableCell>
                         <TableCell>Φοιτητής</TableCell>
                       </TableRow>
                     </TableHead>
@@ -160,13 +161,15 @@ function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStu
                       {semesterData.map((item) => (
                         <TableRow key={item.regId}>
                           <TableCell>{item.course ? item.course.name : 'N/A'}</TableCell>
+                          <TableCell>{item.course ? item.course.course_Type : 'N/A'}</TableCell>
+                          <TableCell>{item.course ? item.course.ects : 'N/A'}</TableCell>
                           <TableCell>{getStudentName(item.student ? item.student.studentID : null)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
-              </div>
+              </React.Fragment>
             ))}
 
             {error && <p>{error}</p>}
