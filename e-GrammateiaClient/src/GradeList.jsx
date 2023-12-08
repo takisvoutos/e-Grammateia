@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { TextField, Button, Box, IconButton, Select, MenuItem,Table, TableBody, TableCell, TableContainer, TableHead, TableRow,} from '@mui/material';
+import { TextField, Button, Box, IconButton, Select, MenuItem,Table, TableBody, TableCell, TableContainer, TableHead, TableRow,Divider} from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
+import React from 'react';
 
-function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teacher})
+function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teacher,registrations})
 {
 
     const [formData, setFormData] = useState({ 
@@ -74,11 +75,70 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
     const getStudentName = (studentID) => {
         const student = students.find((s) => s.studentID === studentID);
         return student ? student.user.name : 'N/A';
-      };
+    };
+
+    const getStudentsForCourse = () => {
+      const studentsForSelectedCourse = registrations.filter(registration => registration.courseID === formData.courseID);
+      
+      return studentsForSelectedCourse.map(registration => {
+        const student = students.find(s => s.studentID === registration.studentID);
+        return (
+          <MenuItem key={student.studentID} value={student.studentID}>
+            {getStudentName(student.studentID)}
+          </MenuItem>
+        );
+      });
+    };
+
+    // Function to filter data by course ID
+    const filterDataByCourse = (courseID) => data.filter((item) => item.courseID === courseID);
+
+    // Iterate over unique courses and create separate tables
+    const courseTables = courses.map((course) => {
+      const courseData = filterDataByCourse(course.id);
+
+      return (
+        <React.Fragment key={course.id}>
+          <h3>{course.name}</h3>
+          <TableContainer sx={{ maxWidth: '80%', mt: 3, maxHeight: '500px', overflowY: 'auto' }}>
+            <Table>
+            <TableHead>
+              <TableRow style={{ backgroundColor: 'lightgrey' }}>
+                <TableCell>Βαθμός</TableCell>
+                <TableCell>Εξεταστική</TableCell>
+                <TableCell>Φοιτητής</TableCell>
+                <TableCell>Ενέργειες</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {courseData.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.grade}</TableCell>
+                  <TableCell>{item.exam}</TableCell>
+                  <TableCell>{getStudentName(item.student ? item.student.studentID : null)}</TableCell>
+                  <TableCell>
+                    <IconButton aria-label="edit" onClick={() => handleEdit(item)}>
+                      <Edit />
+                    </IconButton>
+                    <IconButton aria-label="delete" onClick={() => onDelete(item.id)}>
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            </Table>
+          </TableContainer>
+        </React.Fragment>
+      );
+    });
+
+    
+    
       
     return (
         <Box className="Box" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <h2>Βαθμοί</h2>
+        <h2>Νέος βαθμός</h2>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12}}>
           <TextField label="Βαθμός" name="grade" value={formData.grade} onChange={handleFormChange} />
           <TextField label="Εξεταστική" name="exam" value={formData.exam} onChange={handleFormChange} />
@@ -92,48 +152,14 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
           </Select>
           <Select label="Φοιτητής" name="studentID" value={formData.studentID} onChange={handleFormChange} displayEmpty>
             <MenuItem value="" disabled>Επιλέξτε φοιτητή</MenuItem>
-              {students.map(student => (
-                <MenuItem key={student.studentID} value={student.studentID}>
-                  {getStudentName(student.studentID)}
-                </MenuItem>
-              ))}
+            {getStudentsForCourse()}
           </Select>
-          {/* <TextField label="Φοιτητής" name="studentID" value={formData.studentID} onChange={handleFormChange} /> */}
           <Button sx={{ mr: 1 }} variant="contained" type="submit">{editingId === null ? 'ΔΗΜΙΟΥΡΓΙΑ' : 'ΕΝΗΜΕΡΩΣΗ'}</Button>
           {editingId !== null && <Button variant="contained" color="secondary" onClick={handleCancelEdit}>ΑΚΥΡΩΣΗ</Button>}
         </form>
-        <TableContainer sx={{ maxWidth: '80%', mt: 3, maxHeight: '500px', overflowY: 'auto' }}>
-        <h3>Βαθμοί</h3>
-        <Table>
-          <TableHead>
-            <TableRow style={{ backgroundColor: 'lightgrey' }}>
-              <TableCell>Μάθημα</TableCell>
-              <TableCell>Βαθμός</TableCell>
-              <TableCell>Εξεταστική</TableCell>
-              <TableCell>Φοιτητής</TableCell>
-              <TableCell>Ενέργειες</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.course ? item.course.name : 'N/A'}</TableCell>
-                <TableCell>{item.grade}</TableCell>
-                <TableCell>{item.exam}</TableCell>
-                <TableCell>{getStudentName(item.student ? item.student.studentID : null)}</TableCell>
-                <TableCell>
-                  <IconButton aria-label="edit" onClick={() => handleEdit(item)}>
-                    <Edit />
-                  </IconButton>
-                  <IconButton aria-label="delete" onClick={() => onDelete(item.id)}>
-                    <Delete />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        <Divider sx={{ width: '80%', my: 3 }} /> 
+        <h2>Βαθμοί ανά μάθημα</h2>
+        {courseTables}
         {error && <p>{error}</p>}
       </Box>
     );

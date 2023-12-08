@@ -26,7 +26,7 @@ function StudentCoursesList({data,userStudentID,error})
         } else {
           return 'inherit'; // Default color
         }
-      };
+    };
 
     return (
         <Box className="Box" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

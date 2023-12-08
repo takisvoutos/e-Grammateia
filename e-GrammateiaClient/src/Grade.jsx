@@ -9,6 +9,7 @@ function GradeManagement() {
     const [maxGradeId, setMaxGradeId] = useState(0);
     const [courses, setCourses] = useState([]); 
     const [students, setStudents] = useState([]);
+    const [registrations, setRegistrations] = useState([]);
     const [userTeacherID, setUserTeacherID] = useState(null);
     const [userDepartmentID, setUserDepartmentID] = useState(null);
 
@@ -53,6 +54,14 @@ function GradeManagement() {
           }
           const studentData = await studentResponse.json();
           setStudents(studentData);
+
+          // Fetch registration data
+          const registrationResponse = await fetch('http://localhost:5108/registration');
+          if (!registrationResponse.ok) {
+            throw new Error('Failed to fetch registration data from the server');
+          }
+          const registrationData = await registrationResponse.json();
+          setRegistrations(registrationData);
     
         } catch (error) {
           console.error('Error fetching grade data:', error);
@@ -143,6 +152,7 @@ function GradeManagement() {
             onDelete={handleDelete}
             courses={courses}
             students={students}
+            registrations={registrations}
             teacher={userTeacherID}
           />
         </div>
