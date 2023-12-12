@@ -35,7 +35,7 @@ export const mainListItems = () => {
             <ListItemIcon>
               <PeopleIcon />
             </ListItemIcon>
-            <ListItemText primary="Users" />
+            <ListItemText primary="Χρήστες" />
           </ListItemButton>
           {/* <ListItemButton component={Link} to="/departments">
             <ListItemIcon>

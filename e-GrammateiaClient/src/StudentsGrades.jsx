@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Layout from './Layout';
 import Cookies from 'js-cookie';
 import StudentGradesChart from './StudentGradesChart';
 
@@ -9,10 +8,10 @@ function StudentGrades() {
   const [userStudentID, setUserStudentID] = useState(null);
 
   useEffect(() => {
-    fetchStudentGradesDataData();
+    fetchStudentGradesData();
   }, []);
 
-  const fetchStudentGradesDataData = async () => {
+  const fetchStudentGradesData = async () => {
     try {
       // Retrieve the user student id from cookies or state
       const userStudentIDFromCookie = Cookies.get('userStudentID');

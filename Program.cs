@@ -772,6 +772,18 @@ app.MapGet("/grade/teacher/{id}", async (GrammateiaDb db, int id) =>
     return grades;
 });
 
+app.MapGet("/grade/student/{id}", async (GrammateiaDb db, int id) => 
+{
+    var grades = await db.Grade
+        .Include(g => g.Course)
+        .Include(g => g.Student)
+        .Include(g => g.Teacher)
+        .Where(g => g.StudentID == id)
+        .ToListAsync();
+
+    return grades;
+});
+
 
 app.MapGet("/grade/{id}", async (GrammateiaDb db, int id) =>
 {
