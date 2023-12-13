@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Button, Box, IconButton,Checkbox,FormControlLabel, FormControl,TableContainer, Table, TableHead, TableRow, TableCell, TableBody} from '@mui/material';
+import { Button, Box,Checkbox,FormControlLabel, FormControl,TableContainer, Table, TableHead, TableRow, TableCell, TableBody} from '@mui/material';
 import { Divider, Typography } from '@mui/material';
 import React from 'react';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+
 
 
 
@@ -18,12 +23,22 @@ function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStu
           const { name, value, checked } = event.target;
         
           if (name === 'courseIDs') {
-            setFormData((prevData) => ({
-              ...prevData,
-              courseIDs: checked
-                ? [...prevData.courseIDs, value]
-                : prevData.courseIDs.filter((id) => id !== value),
-            }));
+            setFormData((prevData) => {
+              let updatedCourseIDs;
+        
+              if (checked) {
+                // Add the courseID to the array if it's not already present
+                updatedCourseIDs = [...new Set([...prevData.courseIDs, value])];
+              } else {
+                // Remove the courseID from the array
+                updatedCourseIDs = prevData.courseIDs.filter((id) => id !== value);
+              }
+        
+              return {
+                ...prevData,
+                courseIDs: updatedCourseIDs,
+              };
+            });
           }
         };
 
@@ -111,6 +126,10 @@ function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStu
 
         const { organizedData, organizedCourses } = organizeDataBySemester(data, courses);
 
+        const areAllOptionsDisabled = Object.values(organizedCourses).every((semesterCourses) =>
+          semesterCourses.every((course) => isCourseRegistered(course.id))
+        );
+
         
         return (
             <Box className="Box" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -130,6 +149,8 @@ function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStu
                               value={course.id}
                               onChange={handleFormChange}
                               disabled={isCourseRegistered(course.id)}
+                              indeterminateIcon={<CheckCircleIcon />}
+                              indeterminate={isCourseRegistered(course.id)}
                             />
                           }
                           label={course.name}
@@ -140,9 +161,17 @@ function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStu
                   ))}
                 </FormControl>
 
-              <Button sx={{ mr: 1 }} variant="contained" type="submit">{editingId === null ? 'ΔΗΛΩΣΗ' : 'Update'}</Button>
-              {/* {editingId !== null && <Button variant="contained" color="secondary" onClick={handleCancelEdit}>Cancel</Button>} */}
+                {areAllOptionsDisabled ? (
+                  <Typography variant="body1" mt={2}>
+                    Έχουν δηλωθεί όλα τα διαθέσιμα μαθήματα.
+                  </Typography>
+                ) : (
+                  <Button sx={{ mr: 1 }} variant="contained" type="submit">
+                    {editingId === null ? 'ΔΗΛΩΣΗ' : 'Update'}
+                  </Button>
+                )}
             </form>
+            <Divider sx={{ width: '100%', mt: 3, mb: 3 }} />
             <h3>Δηλώσεις μαθημάτων ανά εξάμηνο</h3>
            {Object.entries(organizedData).map(([semester, semesterData]) => (
               <React.Fragment key={semester}>

@@ -10,6 +10,11 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Kernel.Font;
+using iText.IO.Font;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -783,6 +788,73 @@ app.MapGet("/grade/student/{id}", async (GrammateiaDb db, int id) =>
 
     return grades;
 });
+
+app.MapGet("/grade/student/{id}/pdf", async (GrammateiaDb db, int id) => 
+{
+    var grades = await db.Grade
+    .Include(g => g.Course)
+    .Where(g => g.StudentID == id)
+    .Select(g => new
+    {
+        g.Id,
+        g.Grade,
+        Course = new
+        {
+            g.Course.Id,
+            g.Course.Name,
+            g.Course.Semester,
+            g.Course.Course_Type,
+            g.Course.ECTS,
+            // Include other necessary properties of the Course entity
+        },
+        g.Exam,
+    })
+    .ToListAsync();
+
+
+
+    // Create a PDF document
+    var pdfPath = $"grades_{id}.pdf";
+    using (var writer = new PdfWriter(pdfPath))
+    {
+        var pdf = new PdfDocument(writer);
+        var document = new Document(pdf);
+
+        // Specify the path to a font file that supports Greek characters
+        string fontPath = "arial-unicode-ms.ttf";
+        PdfFont font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+
+        var table = new Table(5);
+
+        // Set the font for the table cells
+        table.SetFont(font);
+
+        // Add table headers
+        table.AddHeaderCell("Μάθημα");
+        table.AddHeaderCell("Βαθμός");
+        table.AddHeaderCell("Τύπος Μαθήματος");
+        table.AddHeaderCell("ECTS");
+        table.AddHeaderCell("Εξεταστική");
+
+        foreach (var grade in grades)
+        {
+            // Add table data
+            table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.Name ?? "N/A"}")));
+            table.AddCell(new Cell().Add(new Paragraph($"{grade.Grade}")));
+            table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.Course_Type ?? "N/A"}")));
+            table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.ECTS}")));
+            table.AddCell(new Cell().Add(new Paragraph($"{grade.Exam}")));
+        }
+        document.Add(table);
+        document.Close();
+    }
+
+    // Return the path to the generated PDF
+    return pdfPath;
+});
+
+
+
 
 
 app.MapGet("/grade/{id}", async (GrammateiaDb db, int id) =>

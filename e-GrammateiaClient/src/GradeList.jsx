@@ -140,8 +140,6 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
         <Box className="Box" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <h2>Νέος βαθμός</h2>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12}}>
-          <TextField label="Βαθμός" name="grade" value={formData.grade} onChange={handleFormChange} />
-          <TextField label="Εξεταστική" name="exam" value={formData.exam} onChange={handleFormChange} />
           <Select label="Μάθημα" name="courseID" value={formData.courseID} onChange={handleFormChange} displayEmpty>
             <MenuItem value="" disabled>Επιλέξτε μάθημα</MenuItem>
               {courses.map(course => (
@@ -154,6 +152,8 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
             <MenuItem value="" disabled>Επιλέξτε φοιτητή</MenuItem>
             {getStudentsForCourse()}
           </Select>
+          <TextField label="Βαθμός" name="grade" value={formData.grade} onChange={handleFormChange} />
+          <TextField label="Εξεταστική" name="exam" value={formData.exam} onChange={handleFormChange} />
           <Button sx={{ mr: 1 }} variant="contained" type="submit">{editingId === null ? 'ΔΗΜΙΟΥΡΓΙΑ' : 'ΕΝΗΜΕΡΩΣΗ'}</Button>
           {editingId !== null && <Button variant="contained" color="secondary" onClick={handleCancelEdit}>ΑΚΥΡΩΣΗ</Button>}
         </form>
