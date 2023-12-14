@@ -15,6 +15,12 @@ using iText.Layout;
 using iText.Layout.Element;
 using iText.Kernel.Font;
 using iText.IO.Font;
+using iText.Layout.Properties;
+using iText.IO.Image;
+using iText.Kernel.Colors;
+using Microsoft.Extensions.FileProviders;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +66,14 @@ app.UseSwaggerUI(c =>
 {
    c.SwaggerEndpoint("/swagger/v1/swagger.json", "e-Grammateia API V1");
 });
+
+// Configure static file serving for the 'docs' directory
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "docs")),
+            RequestPath = "/docs" // Adjust as needed
+        });
 
 // Departments //
 
@@ -789,15 +803,18 @@ app.MapGet("/grade/student/{id}", async (GrammateiaDb db, int id) =>
     return grades;
 });
 
-app.MapGet("/grade/student/{id}/pdf", async (GrammateiaDb db, int id) => 
+app.MapGet("/grade/student/{id}/pdf", async (HttpContext context, GrammateiaDb db, int id) => 
 {
     var grades = await db.Grade
     .Include(g => g.Course)
-    .Where(g => g.StudentID == id)
+    .Include(g => g.Student)
+    .Where(g => g.StudentID == id && g.Grade >= 5)
     .Select(g => new
     {
         g.Id,
         g.Grade,
+        g.Student.StudentNumber,
+        StudentName = g.Student.User.Name, 
         Course = new
         {
             g.Course.Id,
@@ -805,16 +822,16 @@ app.MapGet("/grade/student/{id}/pdf", async (GrammateiaDb db, int id) =>
             g.Course.Semester,
             g.Course.Course_Type,
             g.Course.ECTS,
-            // Include other necessary properties of the Course entity
         },
-        g.Exam,
+        g.Exam
     })
     .ToListAsync();
 
-
+    string pdfDirectory = "./docs";
 
     // Create a PDF document
-    var pdfPath = $"grades_{id}.pdf";
+    var pdfPath = Path.Combine(pdfDirectory, $"grades_{id}.pdf");
+
     using (var writer = new PdfWriter(pdfPath))
     {
         var pdf = new PdfDocument(writer);
@@ -823,37 +840,111 @@ app.MapGet("/grade/student/{id}/pdf", async (GrammateiaDb db, int id) =>
         // Specify the path to a font file that supports Greek characters
         string fontPath = "arial-unicode-ms.ttf";
         PdfFont font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+  
+        // Add an image to the document
+        string imagePath = "./e-GrammateiaClient/public/logo-login.png";
+        Image image = new Image(ImageDataFactory.Create(imagePath))
+            .SetWidth(150);
 
-        var table = new Table(5);
+        document.Add(image);
 
-        // Set the font for the table cells
-        table.SetFont(font);
+        // Add a title to the document
+        document.Add(new Paragraph("Πιστοποιητικό Αναλυτικής Βαθμολογία")
+            .SetFont(font)
+            .SetFontSize(16)
+            .SetTextAlignment(TextAlignment.CENTER));
 
-        // Add table headers
-        table.AddHeaderCell("Μάθημα");
-        table.AddHeaderCell("Βαθμός");
-        table.AddHeaderCell("Τύπος Μαθήματος");
-        table.AddHeaderCell("ECTS");
-        table.AddHeaderCell("Εξεταστική");
+        // Add the student's name to the document
+        document.Add(new Paragraph($"Όνομα Φοιτητή: {grades.FirstOrDefault()?.StudentName}")
+            .SetFont(font));
 
-        foreach (var grade in grades)
+        document.Add(new Paragraph($"Αρ. Μητρώου: {grades.FirstOrDefault()?.StudentNumber}")
+            .SetFont(font));
+
+        // Add the current date
+        string currentDate = DateTime.Now.ToString("dd/MM/yyyy");
+        document.Add(new Paragraph($"Ημερομηνία: {currentDate}")
+            .SetFont(font)
+            .SetTextAlignment(TextAlignment.LEFT));
+
+        // Add a line break
+        document.Add(new Paragraph());
+
+        // Group grades by semester
+        var gradesBySemester = grades
+            .GroupBy(g => g.Course.Semester)
+            .OrderBy(g => g.Key);
+
+        foreach (var semesterGroup in gradesBySemester)
         {
-            // Add table data
-            table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.Name ?? "N/A"}")));
-            table.AddCell(new Cell().Add(new Paragraph($"{grade.Grade}")));
-            table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.Course_Type ?? "N/A"}")));
-            table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.ECTS}")));
-            table.AddCell(new Cell().Add(new Paragraph($"{grade.Exam}")));
+            // Add a header for the semester
+            document.Add(new Paragraph($"Εξάμηνο {semesterGroup.Key}")
+                .SetFont(font)
+                .SetFontSize(14)
+                .SetBold()
+                .SetTextAlignment(TextAlignment.LEFT));
+
+            // Add a line break
+            document.Add(new Paragraph());
+
+            var table = new Table(5);
+
+            // Set the font for the table cells
+            table.SetFont(font);
+
+            // Add table headers
+            table.AddHeaderCell(CreateHeaderCell("Μάθημα", font));
+            table.AddHeaderCell(CreateHeaderCell("Βαθμός", font));
+            table.AddHeaderCell(CreateHeaderCell("Τύπος Μαθήματος", font));
+            table.AddHeaderCell(CreateHeaderCell("ECTS", font));
+            table.AddHeaderCell(CreateHeaderCell("Εξεταστική", font));
+
+            Cell CreateHeaderCell(string text, PdfFont font)
+            {
+                return new Cell()
+                    .Add(new Paragraph(text).SetFont(font).SetBold())
+                    .SetBackgroundColor(ColorConstants.LIGHT_GRAY);
+            }
+
+            foreach (var grade in semesterGroup)
+            {
+                // Add table data
+                table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.Name ?? "N/A"}")));
+                table.AddCell(new Cell().Add(new Paragraph($"{grade.Grade}")));
+                table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.Course_Type ?? "N/A"}")));
+                table.AddCell(new Cell().Add(new Paragraph($"{grade.Course?.ECTS}")));
+                table.AddCell(new Cell().Add(new Paragraph($"{grade.Exam}")));
+            }
+
+            document.Add(table);
+
+            document.Add(new Paragraph()); // Add a line break
         }
-        document.Add(table);
         document.Close();
     }
 
-    // Return the path to the generated PDF
-    return pdfPath;
+    // Construct and return the URL
+    var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+    var pdfURL = new Uri(new Uri(baseUrl), pdfPath).ToString();
+    return pdfURL;
 });
 
+app.MapGet("/pdf/{id}", async (HttpContext context, GrammateiaDb db, int id) => 
+{
+    string pdfDirectory = "./docs";
+    var pdfFileName = $"grades_{id}.pdf";
+    var pdfPath = Path.Combine(pdfDirectory, pdfFileName);
 
+    if (System.IO.File.Exists(pdfPath))
+    {
+        var pdfUrl = $"{context.Request.Scheme}://{context.Request.Host}/docs/{pdfFileName}";
+        return Results.Ok(pdfUrl);
+    }
+    else
+    {
+        return Results.NotFound("PDF not found");
+    }
+});
 
 
 

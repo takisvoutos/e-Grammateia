@@ -35,6 +35,7 @@ import Course from './Course';
 import Grade from './Grade';
 import Registration from './Registration';
 import StudentCourse from './StudentCourses';
+import GradesPDF from './GradesPDF';
 
 export default function App() {
 
@@ -71,6 +72,10 @@ export default function App() {
          <Route
             path="/studentCourses"
             element={<PrivateRoute element={<StudentCourse />} allowedRoles={['Student']} />}
+        />
+        <Route
+            path="/gradesPDF"
+            element={<PrivateRoute element={<GradesPDF />} allowedRoles={['Student']} />}
         />
       </Routes>
     </BrowserRouter>

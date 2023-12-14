@@ -11,6 +11,7 @@ import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import BookIcon from '@mui/icons-material/Book';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 
@@ -67,11 +68,17 @@ export const mainListItems = () => {
           </ListItemIcon>
           <ListItemText primary="Δήλωση μαθημάτων" />
         </ListItemButton>
-         <ListItemButton component={Link} to="/studentCourses">
+        <ListItemButton component={Link} to="/studentCourses">
          <ListItemIcon>
            <BookIcon />
          </ListItemIcon>
          <ListItemText primary="Μαθήματα" />
+       </ListItemButton>
+       <ListItemButton component={Link} to="/gradesPDF">
+         <ListItemIcon>
+           <VerifiedIcon />
+         </ListItemIcon>
+         <ListItemText primary="Πιστοποιητικά" />
        </ListItemButton>
        </>
       )}
