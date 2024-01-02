@@ -21,6 +21,8 @@ using iText.Kernel.Colors;
 using Microsoft.Extensions.FileProviders;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.IO;
+using System.Net;
+using System.Net.Mail;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +76,67 @@ app.UseSwaggerUI(c =>
                 Path.Combine(Directory.GetCurrentDirectory(), "docs")),
             RequestPath = "/docs" // Adjust as needed
         });
+
+// Email New Grade //
+
+static void SendEmail(string toEmail, string courseName)
+{
+    string fromMail = "edusecretary587@gmail.com";
+    string fromPassword = "nifdjiunnpbgfldl";
+
+    MailMessage message = new MailMessage();
+    message.From = new MailAddress(fromMail, "EduSecretary");
+    message.Subject = "Νέος Βαθμός";
+    message.To.Add(new MailAddress(toEmail));
+    message.Body = $"<html><body> Προστέθηκε ένας νέος βαθμός για το μάθημα <b>{courseName}</b>. </body></html>";
+    message.IsBodyHtml = true;
+
+    var smtpClient = new SmtpClient("smtp.gmail.com")
+    {
+        Port = 587, 
+        Credentials = new NetworkCredential(fromMail, fromPassword),
+        EnableSsl = true,
+    };
+
+    smtpClient.Send(message);
+}
+
+app.MapGet("/send-email/{studentId}/{courseId}", async (GrammateiaDb db, IHttpContextAccessor httpContextAccessor, int studentId, int courseId) =>
+{
+    try
+    {
+        var userEmail = await db.Student
+            .Where(s => s.StudentID == studentId)
+            .Join(db.User, student => student.UserID, user => user.Id, (student, user) => user.Email)
+            .FirstOrDefaultAsync();
+
+        if (userEmail == null)
+        {
+            return "User not found!";
+        }
+
+        var courseName = await db.Course
+            .Where(c => c.Id == courseId)
+            .Select(c => c.Name)
+            .FirstOrDefaultAsync();
+
+        if (courseName == null)
+        {
+            return "Course not found!";
+        }
+
+        // Call the email function
+        SendEmail(userEmail,courseName);
+
+        return "Email sent successfully!";
+    }
+    catch (Exception ex)
+    {
+        // Log the exception or handle it appropriately
+        return $"Error sending email: {ex.Message}";
+    }
+});
+
 
 // Departments //
 
@@ -1121,7 +1184,6 @@ app.MapDelete("/registration/{id}", async (GrammateiaDb db, int id) =>
    await db.SaveChangesAsync();
    return Results.Ok();
 });
-
 
 app.UseCors(MyAllowSpecificOrigins);
 

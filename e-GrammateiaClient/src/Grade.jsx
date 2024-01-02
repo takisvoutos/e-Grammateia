@@ -71,28 +71,40 @@ function GradeManagement() {
 
       const handleCreate = async (grade) => {
         try {
-          // Omit the 'id' property from the grade object
-          const { id, ...gradeWithoutId } = grade;
-          const response = await fetch('http://localhost:5108/grades', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(gradeWithoutId),
-          });
-      
-          if (!response.ok) {
-            // Handle the error, e.g., show an error message
-            console.error('Failed to create grade:', response.statusText);
-            return;
-          }else 
-          {
-            console.log("Grade created successfully");
-          }
+            // Omit the 'id' property from the grade object
+            const { id, ...gradeWithoutId } = grade;
+            const response = await fetch('http://localhost:5108/grades', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(gradeWithoutId),
+            });
+    
+            if (!response.ok) {
+                // Handle the error, e.g., show an error message
+                console.error('Failed to create grade:', response.statusText);
+                return;
+            } else {
+                console.log("Grade created successfully");
+    
+                // Use the student email as a path parameter in the email endpoint
+                const emailResponse = await fetch(`http://localhost:5108/send-email/${grade.studentID}/${grade.courseID}`, {
+                    method: 'GET', // Use GET if your backend is set up to handle GET requests
+                });
+    
+                if (!emailResponse.ok) {
+                    // Handle the error, e.g., log or show an error message
+                    console.error('Failed to send email:', emailResponse.statusText);
+                } else {
+                    console.log('Email sent successfully');
+                }
+            }
         } catch (error) {
-          console.error('Error creating grade:', error.message);
+            console.error('Error creating grade:', error.message);
         }
-      };
+    };
+    
 
       const handleUpdate = async (grade) => {
         try {

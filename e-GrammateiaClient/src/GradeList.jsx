@@ -95,7 +95,7 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
 
     // Iterate over unique courses and create separate tables
     const courseTables = courses.map((course) => {
-      const courseData = filterDataByCourse(course.id);
+    const courseData = filterDataByCourse(course.id);
 
       return (
         <React.Fragment key={course.id}>
