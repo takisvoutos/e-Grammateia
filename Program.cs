@@ -800,7 +800,10 @@ app.MapPost("/login", async (GrammateiaDb db, [FromBody] LoginRequest loginReque
                 authToken = tokenHandler.WriteToken(token),
                 departmentName,
                 departmentID,
-                teacherID
+                teacherID,
+                user.Name,       
+                user.Email,
+                user.Username
             };
         
         }
@@ -811,7 +814,10 @@ app.MapPost("/login", async (GrammateiaDb db, [FromBody] LoginRequest loginReque
                 authToken = tokenHandler.WriteToken(token),
                 departmentName,
                 departmentID,
-                studentID
+                studentID,
+                user.Name,       
+                user.Email,
+                user.Username
             };
         }
         else
@@ -820,7 +826,10 @@ app.MapPost("/login", async (GrammateiaDb db, [FromBody] LoginRequest loginReque
             {
                 authToken = tokenHandler.WriteToken(token),
                 departmentName,
-                departmentID
+                departmentID,
+                user.Name,       
+                user.Email,
+                user.Username
             };
         }
 
@@ -912,7 +921,7 @@ app.MapGet("/grade/student/{id}/pdf", async (HttpContext context, GrammateiaDb d
         document.Add(image);
 
         // Add a title to the document
-        document.Add(new Paragraph("Πιστοποιητικό Αναλυτικής Βαθμολογία")
+        document.Add(new Paragraph("Πιστοποιητικό Αναλυτικής Βαθμολογίας")
             .SetFont(font)
             .SetFontSize(16)
             .SetTextAlignment(TextAlignment.CENTER));

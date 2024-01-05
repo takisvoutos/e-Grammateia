@@ -13,11 +13,13 @@ import MyCustomImage from '/public/logo-login.png';
 import './CSS/styles.css';
 import theme from './theme';
 import { Cookie } from '@mui/icons-material';
+import { useUser } from './UserContext';  // Import useUser from the context
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { setUserInfo } = useUser();  // Use the useUser hook to get context functions
 
   const handleLogin = async () => {
     try {
@@ -35,35 +37,41 @@ const Login = () => {
 
       if (response.ok) {
 
-      const data = await response.json();
+        const data = await response.json();
 
-      const authToken = data.authToken;
+        // Extract user information from the response
+        const { name, username, email, departmentName } = data;
 
-      // Set the token in the cookie
-      Cookies.set('authTokenNEW', authToken);
+        // Update user information in the context
+        setUserInfo(name, username, email, departmentName);
+
+        const authToken = data.authToken;
+
+        // Set the token in the cookie
+        Cookies.set('authTokenNEW', authToken);
 
 
-      const decoded = jwtDecode(authToken);
-      const userRole = decoded.role;
-      const userDepartment = data.departmentName; // Retrieve the department name from the response
-      const userDepartmentID = data.departmentID; // Retrieve the department id from the response
-      const userTeacherID = data.teacherID; // Retrieve the teacher id from the response
-      const userStudentID = data.studentID;
+        const decoded = jwtDecode(authToken);
+        const userRole = decoded.role;
+        const userDepartment = data.departmentName; // Retrieve the department name from the response
+        const userDepartmentID = data.departmentID; // Retrieve the department id from the response
+        const userTeacherID = data.teacherID; // Retrieve the teacher id from the response
+        const userStudentID = data.studentID;
 
-      Cookies.set('userDepartment', userDepartment);
-      Cookies.set('userDepartmentID', userDepartmentID);
-      Cookies.set('userTeacherID', userTeacherID);
-      Cookies.set('userStudentID', userStudentID);
+        Cookies.set('userDepartment', userDepartment);
+        Cookies.set('userDepartmentID', userDepartmentID);
+        Cookies.set('userTeacherID', userTeacherID);
+        Cookies.set('userStudentID', userStudentID);
 
-      console.log('Login successful');
-      console.log('User Role:', userRole);
-      console.log('User Department Name:', userDepartment);
-      console.log('User Department ID:', userDepartmentID);
-      console.log('User Teacher ID:', userTeacherID);
-      console.log('User Student ID:', userStudentID);
+        console.log('Login successful');
+        console.log('User Role:', userRole);
+        console.log('User Department Name:', userDepartment);
+        console.log('User Department ID:', userDepartmentID);
+        console.log('User Teacher ID:', userTeacherID);
+        console.log('User Student ID:', userStudentID);
 
-      // Redirect to the dashboard
-      navigate('/'); // Use the navigate function to redirect to the root path
+        // Redirect to the dashboard
+        navigate('/'); // Use the navigate function to redirect to the root path
 
       } else {
         console.error('Login failed', response.statusText);

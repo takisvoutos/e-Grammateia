@@ -36,10 +36,12 @@ import Grade from './Grade';
 import Registration from './Registration';
 import StudentCourse from './StudentCourses';
 import GradesPDF from './GradesPDF';
+import { UserProvider } from './UserContext';
 
 export default function App() {
 
   return (
+    <UserProvider>
     <ThemeProvider theme={theme}>
     <CssBaseline />
     <BrowserRouter>
@@ -80,6 +82,7 @@ export default function App() {
       </Routes>
     </BrowserRouter>
   </ThemeProvider>
+  </UserProvider>
   );
 }
 

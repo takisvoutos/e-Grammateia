@@ -8,6 +8,8 @@ import CourseAverage from './CourseAverage';
 import TeacherCourse from './TeacherCourse';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { useUser } from './UserContext';
+import UserDetails from './UserDetails';
 
 export default function Dashboard() {
 
@@ -15,6 +17,7 @@ export default function Dashboard() {
   const decoded = jwtDecode(authTokenNEW);
   const userRole = decoded.role;
   console.log(userRole);
+  const { userData } = useUser();
 
 return (
     <Layout title="Dashboard">
@@ -61,6 +64,13 @@ return (
               )}
             </Grid>
           </Container>
+          
+          <Grid item xs={12}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                <UserDetails userInfo={userData} />
+                </Paper>
+            </Grid>
+          
     </Layout>
     );
 }
