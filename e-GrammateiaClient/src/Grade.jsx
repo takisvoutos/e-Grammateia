@@ -87,6 +87,9 @@ function GradeManagement() {
                 return;
             } else {
                 console.log("Grade created successfully");
+
+                // Refetch the data after a successful creation
+                fetchGradeData();
     
                 // Use the student email as a path parameter in the email endpoint
                 const emailResponse = await fetch(`http://localhost:5108/send-email/${grade.studentID}/${grade.courseID}`, {
@@ -120,6 +123,8 @@ function GradeManagement() {
           if (!response.ok) {
             throw new Error('Failed to update grade');
           }
+
+          fetchGradeData();
       
           // Update the state with the updated course
           const updatedGradeData = gradeData.map(existingGrade =>

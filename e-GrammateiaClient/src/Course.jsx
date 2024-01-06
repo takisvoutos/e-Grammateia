@@ -73,6 +73,7 @@ function CourseManagement() {
           }else 
           {
             console.log("Course created successfully");
+            fetchCourseData();
           }
         } catch (error) {
           console.error('Error creating course:', error.message);
@@ -94,6 +95,8 @@ function CourseManagement() {
           if (!response.ok) {
             throw new Error('Failed to update course');
           }
+
+          fetchCourseData();
       
           // Update the state with the updated course
           const updatedCourseData = courseData.map(existingCourse =>

@@ -64,6 +64,7 @@ function UserManagement() {
       }else 
       {
         console.log("User created successfully");
+        fetchUserData();
       }
     } catch (error) {
       console.error('Error creating user:', error.message);
@@ -85,6 +86,8 @@ function UserManagement() {
       if (!response.ok) {
         throw new Error('Failed to update user');
       }
+
+      fetchUserData();
   
       // Update the state with the updated user
       const updatedUserData = userData.map(existingUser =>

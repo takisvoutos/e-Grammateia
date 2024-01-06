@@ -4,13 +4,10 @@ import { Divider, Typography } from '@mui/material';
 import React from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-
-
-
-
 function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStudentID})
 {
-    
+  
+
     const [formData, setFormData] = useState({ 
         id: '',
         courseIDs: []});
@@ -66,6 +63,8 @@ function RegistrationList({data,onCreate,onUpdate,error,students,courses,userStu
                 } else {
                   onCreate(newRegistration);
                 }
+
+              console.log('Callback function executed.');
 
                 // Log the new registration object after form submission
                 console.log('Registration Data after submission:', newRegistration);

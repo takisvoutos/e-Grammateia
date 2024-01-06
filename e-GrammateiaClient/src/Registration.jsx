@@ -81,6 +81,9 @@ function RegistrationManagement() {
           }else 
           {
             console.log("Registration created successfully");
+
+            // Refetch the data after a successful creation
+            fetchRegistrationData();
           }
         } catch (error) {
           console.error('Error creating registration:', error.message);
@@ -101,6 +104,9 @@ function RegistrationManagement() {
           if (!response.ok) {
             throw new Error('Failed to update registration');
           }
+
+          // Refetch the data after a successful update
+          fetchRegistrationData();
       
           // Update the state with the updated registration
           const updatedRegistrationData = gradeData.map(existingRegistration =>
@@ -132,6 +138,7 @@ function RegistrationManagement() {
           console.error('An error occurred during the delete request:', error);
         }
       };
+
 
       return (
         <Layout title="Registration">
