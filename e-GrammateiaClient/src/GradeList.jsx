@@ -127,31 +127,87 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
         return student ? student.user.name : 'N/A';
     };
 
-    // const getStudentsForCourse = () => {
-    //   const studentsForSelectedCourse = registrations.filter(registration => registration.courseID === formData.courseID);
-      
-    //   return studentsForSelectedCourse.map(registration => {
-    //     const student = students.find(s => s.studentID === registration.studentID);
-    //     return (
-    //       <MenuItem key={student.studentID} value={student.studentID}>
-    //         {getStudentName(student.studentID)}
-    //       </MenuItem>
-    //     );
-    //   });
-    // };
 
-    const getStudentsForCourse = () => {
-      const studentsForSelectedCourse = registrations.filter(registration => registration.courseID === formData.courseID);
+  //   const getStudentsForCourse = () => {
+
+  //     const studentsForSelectedCourse = registrations.filter(registration => registration.courseID === formData.courseID);
+  //     let skippedStudentsCount = 0;
+
+  //     // Check if there are no students for the selected course
+  //     if (studentsForSelectedCourse.length === 0) {
+  //       return (
+  //         <Typography variant="body2" color="textSecondary">
+  //           Δεν υπάρχουν εγγεγραμμένοι φοιτητές για το επιλεγμένο μάθημα.
+  //         </Typography>
+  //       );
+  //     }
     
-      return studentsForSelectedCourse.map((registration, index) => {
-        const student = students.find(s => s.studentID === registration.studentID);
+  //     return studentsForSelectedCourse.map((registration, index) => {
+  //       const student = students.find(s => s.studentID === registration.studentID);
 
-        // Check if the student already has a grade for the selected course
-        const existingGrade = data.find(grade => grade.studentID === student.studentID && grade.courseID === formData.courseID);
+  //       // Check if the student already has a grade for the selected course
+  //       const existingGrade = data.find(grade => grade.studentID === student.studentID && grade.courseID === formData.courseID);
 
-        console.log(existingGrade);
+  //       console.log(existingGrade);
 
-    // Exclude students with existing grades
+  //       // Exclude students with existing grades
+  //       if (!existingGrade) {
+  //         return (
+  //           <React.Fragment key={student.studentID}>
+  //             <ListItem>
+  //               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+  //                 <Typography>{getStudentName(student.studentID)}</Typography>
+  //                 <TextField
+  //                   type="number"
+  //                   label="Βαθμός"
+  //                   inputProps={{ min: 1.0, max: 10.0, step: 0.1}}
+  //                   name={`grade-${student.studentID}`}
+  //                   value={formData[`grade-${student.studentID}`] || ''}
+  //                   onChange={handleFormChange}
+  //                   sx={{ width: '100px' }}
+  //                 />
+  //               </Box>
+  //             </ListItem>
+  //             {index < studentsForSelectedCourse.length - 1 && <Divider />}
+  //           </React.Fragment>
+  //         );
+  //       }else {
+  //         skippedStudentsCount++;
+  //         return null; // Skip displaying students with existing grades
+  //       }
+  //     }).filter(student => student !== null);
+  
+  //     // Check if there are no eligible students
+  // if (skippedStudentsCount === studentsForSelectedCourse.length) {
+  //   return (
+  //     <Typography variant="body2" color="textSecondary">
+  //       Δεν υπάρχουν διαθέσιμοι φοιτητές για βαθμολόγηση.
+  //     </Typography>
+  //   );
+  // }
+  //   };
+  const getStudentsForCourse = () => {
+    const studentsForSelectedCourse = registrations.filter(registration => registration.courseID === formData.courseID);
+    let skippedStudentsCount = 0;
+  
+    // Check if there are no students for the selected course
+    if (studentsForSelectedCourse.length === 0) {
+      return (
+        <Typography variant="body2" color="textSecondary">
+          Δεν υπάρχουν εγγεγραμμένοι φοιτητές για το επιλεγμένο μάθημα.
+        </Typography>
+      );
+    }
+  
+    const eligibleStudents = studentsForSelectedCourse.map((registration, index) => {
+      const student = students.find(s => s.studentID === registration.studentID);
+  
+      // Check if the student already has a grade for the selected course
+      const existingGrade = data.find(grade => grade.studentID === student.studentID && grade.courseID === formData.courseID);
+  
+      console.log(existingGrade);
+  
+      // Exclude students with existing grades
       if (!existingGrade) {
         return (
           <React.Fragment key={student.studentID}>
@@ -161,7 +217,7 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
                 <TextField
                   type="number"
                   label="Βαθμός"
-                  inputProps={{ min: 1.0, max: 10.0, step: 0.1}}
+                  inputProps={{ min: 1.0, max: 10.0, step: 0.1 }}
                   name={`grade-${student.studentID}`}
                   value={formData[`grade-${student.studentID}`] || ''}
                   onChange={handleFormChange}
@@ -172,11 +228,24 @@ function GradeList({data,onCreate,onUpdate,onDelete,error,students,courses,teach
             {index < studentsForSelectedCourse.length - 1 && <Divider />}
           </React.Fragment>
         );
-        }else {
-          return null; // Skip displaying students with existing grades
-        }
-      }).filter(student => student !== null);
-    };
+      } else {
+        skippedStudentsCount++;
+        return null; // Skip displaying students with existing grades
+      }
+    }).filter(student => student !== null);
+  
+    // Check if there are no eligible students
+    if (skippedStudentsCount === studentsForSelectedCourse.length) {
+      return (
+        <Typography variant="body2" color="textSecondary">
+          Δεν υπάρχουν διαθέσιμοι φοιτητές για βαθμολόγηση.
+        </Typography>
+      );
+    }
+  
+    return eligibleStudents;
+  };
+  
     
 
     // Function to filter data by course ID

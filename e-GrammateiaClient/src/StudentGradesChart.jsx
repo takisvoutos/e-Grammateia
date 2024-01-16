@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useMediaQuery } from '@mui/material';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto'; 
 
 const StudentGradesChart = ({ data }) => {
   const [chartData, setChartData] = useState(null);
+  const isMobileScreen = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (data.length > 0) {
@@ -35,7 +37,7 @@ const StudentGradesChart = ({ data }) => {
   }, [data]);
 
   return (
-    <div style={{ width: '300px', height: '300px' }}>
+    <div style={{ width: isMobileScreen ? '100%' : '300px', height: isMobileScreen ? '300px' : '300px' }}>
       {chartData && (
         <Pie
           data={chartData}
