@@ -21,7 +21,7 @@ const StudentGradesChart = ({ data }) => {
       const failedCount = failedCourses.length;
 
       const chartData = {
-        labels: ['Περασμένα μαθήματα', 'Χρωστούμενα μαθήματα'],
+        labels: ['Περασμένα μαθήματα', 'Μη-περασμένα μαθήματα'],
         datasets: [
           {
             data: [succeededCount, failedCount],

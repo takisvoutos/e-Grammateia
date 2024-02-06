@@ -280,6 +280,8 @@ app.MapPost("/courses", async (GrammateiaDb db, Course course) =>
 
 });
 
+
+
 app.MapPut("/courses/{id}", async (GrammateiaDb db, int id, Course updatedCourse) =>
 {
     // Fetch the existing course from the database
@@ -875,6 +877,7 @@ app.MapGet("/grade/student/{id}", async (GrammateiaDb db, int id) =>
     return grades;
 });
 
+// PDF for grades //
 app.MapGet("/grade/student/{id}/pdf", async (HttpContext context, GrammateiaDb db, int id) => 
 {
     var grades = await db.Grade
@@ -1018,6 +1021,114 @@ app.MapGet("/pdf/{id}", async (HttpContext context, GrammateiaDb db, int id) =>
     }
 });
 
+app.MapGet("/certificate/{id}", async (HttpContext context, GrammateiaDb db, int id) => 
+{
+    string pdfDirectory = "./docs";
+    var pdfFileName = $"certificate_of_studies_{id}.pdf";
+    var pdfPath = Path.Combine(pdfDirectory, pdfFileName);
+
+    if (System.IO.File.Exists(pdfPath))
+    {
+        var pdfUrl = $"{context.Request.Scheme}://{context.Request.Host}/docs/{pdfFileName}";
+        return Results.Ok(pdfUrl);
+    }
+    else
+    {
+        return Results.NotFound("PDF not found");
+    }
+});
+
+// PDF - certificate of studies //
+app.MapGet("/certificate/{id}/pdf", async (HttpContext context, GrammateiaDb db, int id) => 
+{
+    var usersData = await db.Student
+        .Where(student => student.StudentID == id)
+        .Select(student => new
+        {
+            student.User.Name,
+            student.RegistrationDate,
+            student.User.Email,
+            student.User.Role,
+            StudentNumber = student.User.Role == UserRole.Student ? student.StudentNumber : null,
+            Department = student.Department != null ? student.Department.Name : null,
+        })
+        .FirstOrDefaultAsync();
+
+    string pdfDirectory = "./docs";
+
+    // Create a PDF document
+    var pdfPath = Path.Combine(pdfDirectory, $"certificate_of_studies_{id}.pdf");
+
+    using (var writer = new PdfWriter(pdfPath))
+    {
+        var pdf = new PdfDocument(writer);
+        var document = new Document(pdf);
+
+        // Specify the path to a font file that supports Greek characters
+        string fontPath = "arial-unicode-ms.ttf";
+        PdfFont font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+  
+        // Add an image to the document
+        string imagePath = "./e-GrammateiaClient/public/logo-login.png";
+        Image image = new Image(ImageDataFactory.Create(imagePath))
+            .SetWidth(150);
+
+        document.Add(image);
+
+        // Add a title to the document
+        document.Add(new Paragraph("ΠΙΣΤΟΠΟΙΗΤΙΚΟ ΣΠΟΥΔΩΝ")
+            .SetFont(font)
+            .SetBold()
+            .SetFontSize(16)
+            .SetTextAlignment(TextAlignment.CENTER)
+            .SetUnderline());
+
+        document.Add(new Paragraph("Ατομικά Στοιχεία")
+            .SetFont(font)
+            .SetBold()
+            .SetFontSize(14)
+            .SetTextAlignment(TextAlignment.LEFT)
+            .SetUnderline());
+
+        // Add the student's name to the document
+        document.Add(new Paragraph($"Όνομα Φοιτητή: {usersData.Name}")
+            .SetFont(font));
+
+        document.Add(new Paragraph($"Αρ. Μητρώου: {usersData.StudentNumber}")
+            .SetFont(font));
+        
+        document.Add(new Paragraph($"Ημ. Εγγραφής: {usersData.RegistrationDate?.ToString("dd/MM/yyyy")}")
+            .SetFont(font));
+
+        if (!string.IsNullOrEmpty(usersData.Department))
+        {
+            document.Add(new Paragraph($"Τμήμα: {usersData.Department}")
+                .SetFont(font));
+        }
+
+        // Add a line break
+        document.Add(new Paragraph());
+
+        document.Add(new Paragraph($"Ο/Η φοιτητής/τρια {usersData.Name} είναι εγγεγραμμένος/νη στο τμήμα {usersData.Department}, " +
+            $"με αριθμό μητρώου {usersData.StudentNumber}. " +
+            $"Ο/Η ανωτέρω διατηρεί τη φοιτητική ιδιότητα για το ακαδημαϊκό έτος {DateTime.Now.Year -1} - {DateTime.Now.Year} και δεν έχει ακόμα καλύψει τις προϋποθέσεις απόκτησης πτυχίου.")
+            .SetFont(font));
+
+        
+        // Add the current date
+        string currentDate = DateTime.Now.ToString("dd/MM/yyyy");
+        document.Add(new Paragraph($"Ημερομηνία: {currentDate}")
+            .SetFont(font)
+            .SetTextAlignment(TextAlignment.RIGHT));
+
+        document.Close();
+    }
+
+    // Construct and return the URL
+    var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+    var pdfURL = new Uri(new Uri(baseUrl), pdfPath).ToString();
+    return pdfURL;
+});
 
 
 app.MapGet("/grade/{id}", async (GrammateiaDb db, int id) =>

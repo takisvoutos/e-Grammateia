@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, Link} from "react-router-dom";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import theme from './theme'; // Import your custom theme
+import theme from './theme';
 import CssBaseline from '@mui/material/CssBaseline';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
