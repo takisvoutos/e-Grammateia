@@ -18,4 +18,8 @@ npm install  # Install dependencies (if not done previously)
 
 This command will start the development server for the frontend at http://localhost:3000.
 
+### API Documentation
+
+For API documentation, visit http://localhost:5108/swagger/.
+
 
