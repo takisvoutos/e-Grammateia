@@ -81,8 +81,8 @@ app.UseSwaggerUI(c =>
 
 static void SendEmail(string toEmail, string courseName)
 {
-    string fromMail = "edusecretary587@gmail.com";
-    string fromPassword = "nifdjiunnpbgfldl";
+    string fromMail = "********";
+    string fromPassword = "********";
 
     MailMessage message = new MailMessage();
     message.From = new MailAddress(fromMail, "EduSecretary");
